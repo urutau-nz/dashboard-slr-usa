@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<head>
+
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script>L_PREFER_CANVAS = false; L_NO_TOUCH = false; L_DISABLE_3D = false;</script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.0/dist/leaflet.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-ajax/2.1.0/leaflet.ajax.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.0.1/d3.min.js" integrity="sha512-1e0JvdNhUkvFbAURPPlFKcX0mWu/b6GT9e0uve7BW4MFxJ15q4ZCd/Llz+B7/oh+qhw7/l6Q1ObPt6aAuR01+Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js" integrity="sha512-4UKI/XKm3xrvJ6pZS5oTRvIQGIzZFoXR71rRBb1y2N+PbwAsKa5tPl2J6WvbEvwN3TxQCm8hMzsl/pO+82iRlg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <link rel="icon" href="https://urbanintelligence.co.nz/wp-content/uploads/2021/07/logo_white_315_favicon.png" sizes="32x32">
+    <link rel="icon" href="https://urbanintelligence.co.nz/wp-content/uploads/2021/07/logo_white_315_favicon.png" sizes="192x192">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.2.0/dist/leaflet.css" />
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.7.0/intro.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.7.0/introjs.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css" />
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+
+    <link rel="stylesheet" href="fcamap.css"/>
+
+    <script src="https://d3js.org/d3.v4.js"></script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=UA-123686738-4"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-123686738-4');
+    </script> -->
+
+</head>
+<body>    
+
+    
+  <div class="folium-map" id="map" ></div>
+  <div id="footer">
+    <img src="https://urbanintelligence.co.nz/wp-content/uploads/2021/07/logo_white_315_favicon.png"></img>
+    <div class="attribution">© 2021 Urban Intelligence.</div>
+  </div>
+  <div id="help-popup">
+    <h2>Achieving X-Minute Cities</h2>
+    <p>
+      As cities rapidly urbanise and adapt to climate change, there is an increasing need to shift the design of built environments to be human-centric and easy to traverse. Introducing: The X-Minute City, where residents are within X minutes of amenities via walking and cycling. Communities with high proximity to amenities creates a vibrant and diverse city.  <br><br>
+This tool enables local government, central government, and communities to:
+<ul><li>Guide investment prioritisation in creating highly accessible cities through place making and smart amenity placement</li>
+  <li>Guide the densification and urban renaissance of towns and cities in Aotearoa </li>
+  <li>Identify neighbourhoods that are underserved by a range of amenities </li>
+  <li>Identify the inequities of city design by income, ethnicity and disability</li> 
+  <li>Adapt to and mitigate climate change through promoting active modes of transit, such as walking, cycling and using a wheelchair</li> 
+</ul></p>
+    <br>
+    <span class="contact">Have suggestions or feedback? Contact us at <a href="mailto:info@urbanintelligence.co.nz?subject=About Your WREMO Project...">info@urbanintelligence.co.nz</a></span>
+    <button onclick="hideHelpPopup()">&#10006;</button>
+  </div>
+</body>
+<script>
+    
+  // If true, enables console logs of core data while running.
+  var DEBUGGING = true;
+  if (DEBUGGING) console.log("Debugging is currently enabled! Set DEBUGGING to false to disable.")
+  var LOADED = false;
+</script> 
+
+<script type="text/javascript" src="js/colors.js"></script>
+
+<script type="text/javascript" src="js/load_data.js"></script>
+
+<script type="text/javascript" src="js/graph.js"></script>
+
+<script type="text/javascript" src="js/map.js"></script>
+<script type="text/javascript" src="js/interface.js"></script>
+
+
+<script type="text/javascript" src="js/intro.js"></script>
+
+<script>
+  var LOADED = true;
+</script>
+
