@@ -11,8 +11,8 @@ amenity_legend.onAdd = function (map) {
             '</h4>';
 
 
-    location_drop = '<h3>Sea Level Increase:</h3>' + 
-                  '<input style="width: 100%;" type="range" id="sliSlider" name="vol" min="1" max="10" value="2">';
+    location_drop = '<h3 style="text-align:left;">Sea Level Increase: <span id="sliText">2ft</span></h3>' + 
+                  '<input style="width: 100%;" type="range" id="sliSlider" name="vol" min="0" max="10" value="2">';
     
     amenity_drop = '<td><h3 style="display:inline">Year:</h3></td>' + 
                     '<td><div class="location_drop_div" style="float: right"><select class="location_drop" id="yearDropDown">' +
@@ -39,22 +39,26 @@ amenity_legend.addTo(map);
 /* Updates the map on changing amenity selection.
 */
 var sliMenu = document.getElementById("sliSlider");
+sliMenu.oninput = function() {
+    var sliText = document.getElementById("sliText");
+    sliText.innerText = sliMenu.value + "ft";
+}
 sliMenu.onchange = function() {
-    updateMap(sliMenu.value, yearMenu.value);
+    updateMap(sliMenu.value, yearMenu.value, popMenu.value);
 }
 
 /* Relocates map to focus on region selected, when region is selected. 
 */
 var popMenu = document.getElementById("popDropDown");
 popMenu.onchange = function() {
-    updateMap(sliMenu.value, yearMenu.value);
+    updateMap(sliMenu.value, yearMenu.value, popMenu.value);
 }
 
 /* Updates the map on changing the mode
 */
 var yearMenu = document.getElementById("yearDropDown");
 yearMenu.onchange = function() {
-    updateMap(sliMenu.value, yearMenu.value);
+    updateMap(sliMenu.value, yearMenu.value, popMenu.value);
 }
 
 

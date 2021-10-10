@@ -3,7 +3,7 @@
 
 /* ==== INITIALISE LEAFLET MAP & TILE LAYER ==== */
 
-var map = L.map('map', {"attributionControl": false, center: [-36.86185, 174.759859], zoom: 10, minZoom : 4, zoomControl: false, worldCopyJump: true, crs: L.CRS.EPSG3857});
+var map = L.map('map', {"attributionControl": false, center: [39.487084981687495, -95.77880859375001], zoom: 5, minZoom : 4, zoomControl: false, worldCopyJump: true, crs: L.CRS.EPSG3857});
 //attr = L.control.attribution().addAttribution('<a href="https://urbanintelligence.co.nz/">Urban Intelligence</a>');
 //attr.addTo(map);
 

@@ -167,7 +167,7 @@ function checkLoaded() {
   return distances_loaded && blocks_loaded;
 }
 
-var url = 'https://raw.githubusercontent.com/urutau-nz/wremo/master/data/results/distances.csv'; 
+var url = 'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/isolation20_county.csv'; 
 d3.csv(url, ({geoid, dest_type, distance, time}) => ({geoid: geoid, dest_type: dest_type, distance: +distance/1000, time:+time}), function(error, json) 
   {
     if(error)
@@ -190,7 +190,7 @@ d3.csv(url, ({geoid, dest_type, distance, time}) => ({geoid: geoid, dest_type: d
 
 /* ==== LOAD BLOCKS DATA ==== */
 
-var url = 'https://raw.githubusercontent.com/urutau-nz/usa_slr/master/data/results/county.topojson?token=ADLJEZQEYKGBIWQDIZLCURTBMKUDW'; 
+var url = 'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/county.json'; 
 d3.json(url, function(error, json) 
   {
     if(error)
@@ -414,14 +414,14 @@ Params:
 */
 var filtered_distances = [];
 var distances_by_geoid = {};
-function updateFilteredDistances(amenity, mode) {
-    filtered_distances = distances.filter(d => d.dest_type == amenity && d.mode == mode);
+function updateFilteredDistances(sli, year, pop) {
+    filtered_distances = distances.filter(d => d.rise == sli);
     distances_by_geoid = Object.assign({}, ...filtered_distances.map((d) => ({[d.geoid]: d.distance})));
 
     if (DEBUGGING) {
         console.log("Updated Filtered Distances");
-        console.log(">> " + amenity);
-        console.log(">> " + mode);
+        console.log(">> " + sli);
+        console.log(">> " + year);
         console.log(filtered_distances);
         console.log(distances_by_geoid);
     };
@@ -431,15 +431,14 @@ function updateFilteredDistances(amenity, mode) {
 
 
 var filtered_histogram_data = [];
-function updateFilteredHistogramData(amenity, region, mode) {
-    filtered_histogram_data = histogram_data.filter(d => d.service == amenity && d.group == "population" &&
-                                                    d.region == region && d.mode == mode); // Add Demographics && Region
+function updateFilteredHistogramData(sli, year, pop) {
+    filtered_histogram_data = histogram_data.filter(d => true); // Add Demographics && Region
     
     if (DEBUGGING) {
         console.log("Updated Filtered Histrogram Data");
-        console.log(">> " + amenity);
-        console.log(">> " + region);
-        console.log(">> " + mode);
+        console.log(">> " + sli);
+        console.log(">> " + year);
+        console.log(">> " + pop);
         console.log(filtered_histogram_data);
     };
 } 
@@ -461,11 +460,12 @@ function initMap() {
 
 
 /* Updates entire map */
-function updateMap(amenity, mode) {
+function updateMap(sli, year, pop) {
+  console.log(map.getCenter());
+
   // Update Data
-  updateFilteredDistances(amenity, mode);
-  updateFilteredDestinations(amenity);
-  updateFilteredHistogramData(amenity, locMenu.value, mode);
+  updateFilteredDistances(sli, year, pop);
+  updateFilteredHistogramData(sli, year, pop);
 
   // Update Graphics
   updateBlocks();
