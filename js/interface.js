@@ -11,19 +11,19 @@ amenity_legend.onAdd = function (map) {
             '</h4>';
 
 
-    location_drop = '<h3 style="text-align:left;">Sea Level Increase: <span id="sliText">2ft</span></h3>' + 
+    location_drop = '<h3 style="text-align:left;">Sea Level: <span id="sliText">+2ft</span></h3>' + 
                   '<input style="width: 100%;" type="range" id="sliSlider" name="vol" min="0" max="10" value="2">';
     
     amenity_drop = '<td><h3 style="display:inline">Year:</h3></td>' + 
                     '<td><div class="location_drop_div" style="float: right"><select class="location_drop" id="yearDropDown">' +
                     '<option value="2020" selected>2020</option>' +
-                    '<option value="2010" disabled>2010</option>' +
+                    '<option value="2010">2010</option>' +
                     '</select></div></td>';
 
 
     demographic_drop = '<td style="min-width: 100px;"><h3 style="display:inline">Population:</h3></td>' + 
                     '<td style="min-width: 150px;"><div class="location_drop_div" style="float: right"><select class="location_drop" id="popDropDown">';
-    demographic_drop += '<option value="exposed" selected>Exposed</option>';
+    demographic_drop += '<option value="exposed">Exposed</option>';
     demographic_drop += '<option value="isolated" selected>Isolated</option>';
     demographic_drop += '</select></div></td>';
 
@@ -41,9 +41,7 @@ amenity_legend.addTo(map);
 var sliMenu = document.getElementById("sliSlider");
 sliMenu.oninput = function() {
     var sliText = document.getElementById("sliText");
-    sliText.innerText = sliMenu.value + "ft";
-}
-sliMenu.onchange = function() {
+    sliText.innerText = "+" + sliMenu.value + "ft";
     updateMap(sliMenu.value, yearMenu.value, popMenu.value);
 }
 
@@ -154,6 +152,7 @@ info_legend.onAdd = function(map) {
     var div = L.DomUtil.create('div', 'info legend');
     div.id = "mouseInfo";
     div.style.position = "absolute";
+    div.style.zIndex = "200000";
     div.style.whiteSpace = "nowrap";
     div.style.fontSize = "15px";
     div.style.visibility = "hidden";
@@ -165,8 +164,11 @@ info_legend.addTo(map);
 
 document.addEventListener('mousemove', function(e) {
     var info_legend = document.getElementById("mouseInfo");
-    let left = e.pageX;
-    let top = e.pageY;
+    let left = e.pageX + 10;
+    let top = e.pageY + 10;
+    if (left + info_legend.offsetWidth * 1.3 >= screen.width) {
+        left = screen.width - info_legend.width * 1.3;
+    }
     info_legend.style.left = left + 'px';
     info_legend.style.top = top + 'px';
 });

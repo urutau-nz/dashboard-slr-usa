@@ -157,40 +157,64 @@ var destinations = [];
   
 /* ==== LOAD DISTANCES DATA ==== */
 
-var distances = [];
-var distances_loaded = false;
+var isolated_pops = [];
+var isolated_pops_loaded = false;
+
+var exposed_pops = [];
+var exposed_pops_loaded = false;
 
 var blocks = [];
 var blocks_loaded = false;
 
 function checkLoaded() {
-  return distances_loaded && blocks_loaded;
+  return isolated_pops_loaded && exposed_pops_loaded && blocks_loaded;
 }
 
-var url = 'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/isolation20_county.csv'; 
-d3.csv(url, ({geoid, dest_type, distance, time}) => ({geoid: geoid, dest_type: dest_type, distance: +distance/1000, time:+time}), function(error, json) 
+var url = 'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/isolation_county.csv';
+d3.csv(url, (d) => ({geoid: d.geoid_county, year: +d.year, rise: +d.rise, pop: +d.U7B001_isolated}), function(error, json) 
   {
     if(error)
     {
       return console.error(error);
     }
-    distances = json;
-    distances_loaded = true;
+    isolated_pops = json;
+    isolated_pops_loaded = true;
 
     if (DEBUGGING) {
-        console.log("Distances Imported");
-        console.log(distances);
+        console.log("Isolated Pops Imported");
+        console.log(isolated_pops);
     };
     
     if (checkLoaded()) {
-        updateMap();
+      initMap();
     }
   });
+  
+var url = 'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/exposure_county.csv';
+d3.csv(url, (d) => ({geoid: d.geoid_county, year: +d.year, rise: +d.rise, state: d.state, pop: +d.U7B001}), function(error, json) 
+  {
+    if(error)
+    {
+      return console.error(error);
+    }
+    exposed_pops = json;
+    exposed_pops_loaded = true;
+
+    if (DEBUGGING) {
+        console.log("Exposed Pops Imported");
+        console.log(exposed_pops);
+    };
+    
+    if (checkLoaded()) {
+      initMap();
+    }
+  });
+  
 
 
 /* ==== LOAD BLOCKS DATA ==== */
 
-var url = 'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/county.json'; 
+var url = 'https://projects.urbanintelligence.co.nz/slr-usa/data/results/county.json'; 
 d3.json(url, function(error, json) 
   {
     if(error)
@@ -219,188 +243,13 @@ d3.json(url, function(error, json)
     };
     
     if (checkLoaded()) {
-        updateMap();
+      initMap();
     }
   });
 
 
 
 
-
-
-
-/* Experimental City Simplification Algorithm */
-
-function convArci(num) {
-  if (num < 0) {
-    return ~num;
-  } else {
-    return num;
-  }
-}
-
-function simplifyTopology(topo, city) {
-
-  var block_list = [];
-  var city = cities[city];
-
-  // Sort by first arc index
-  for (i in topo.objects.block.geometries) {
-    let poly = topo.objects.block.geometries[i];
-    if (poly.type == "Polygon") {
-      block_list.push(poly);
-    }
-  } 
-
-  block_list.sort(function (a, b) { return convArci(a.arcs[0][0]) - convArci(b.arcs[0][0]) });
-
-  console.log(block_list);
-
-  var new_geometries = [];
-
-  for (block_i in block_list) {
-    block = block_list[block_i];
-    //if (block_i > 10) break;
-
-    if (block_i < block_list.length-1) {
-      var next = block_list[parseInt(block_i) + 1].arcs[0];
-
-      var arc_matches = [];
-
-      for (arc_i in block.arcs[0]) {
-        arc = block.arcs[0][arc_i];
-        
-        for (arc2_i in next) {
-          arc2 = next[arc2_i];
-
-          if (convArci(arc2) == convArci(arc)) { 
-            arc_matches.push(convArci(arc));
-          }
-        }
-      }
-
-      if (arc_matches.length == 0) {
-        new_geometries.push(block);
-      } else {
-
-
-        var new_arcs = [];
-        
-        var last = block.arcs[0];
-
-        console.log(arc_matches);
-        console.log(last, next);
-
-        for (arc of arc_matches) {
-          console.log(topo.arcs[convArci(arc)]);
-        }
-        
-        console.log(arc_matches);
-        console.log(last, next);
-        
-        if (arc_matches.length == 1) {
-          while (convArci(next[0]) != arc_matches[0]) next.push(next.shift());
-          while (convArci(last[0]) != arc_matches[0]) last.push(last.shift());
-          new_arcs.push(...last.slice(1));
-          new_arcs.push(...next.slice(1));
-        } else {
-          // Find smallest span that covers all matches
-          var min_i = 0;
-          var max_i = 2000;
-          var max = 0;
-          var min = 0;
-          for (i=0; i < last.length-1; i++) {
-            last.push(last.shift());
-            let my_min_i = last.findIndex(x => arc_matches.includes(x));
-            let my_max_i = last.length - 1 - last.slice().reverse().findIndex(x => arc_matches.includes(x));
-            if (my_max_i - my_min_i < max_i - min_i) {
-              max_i = my_max_i;
-              min_i = my_min_i;
-              max = convArci(last[my_max_i]);
-              min = convArci(last[my_min_i]);
-              console.log(last, max_i, max, min_i, min);
-            }
-          }
-
-          // Remove portion between the two arcs in each
-          while (convArci(next[0]) != max) next.push(next.shift());
-          while (convArci(last[0]) != min) last.push(last.shift());
-          console.log(next, last);
-          while (convArci(next[0]) != min) next.shift();
-          while (convArci(last[0]) != max) last.shift();
-          console.log(next, last);
-
-          // Add together like above
-          new_arcs.push(...last.slice(1));
-          new_arcs.push(...next.slice(1));
-          console.log(next, last);
-        }
-
-        console.log(last, next, new_arcs);
-        
-        for (arc of new_arcs) {
-          console.log(topo.arcs[convArci(arc)]);
-        }
-
-
-        block_list[parseInt(block_i) + 1].arcs[0] = new_arcs;
-
-      }
-    }
-  }
-  new_geometries.push(block);
-  console.log("DIFF: ", topo.objects.block.geometries.length, new_geometries.length);
-  topo.objects.block.geometries = new_geometries;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* ==== LOAD DESTINATIONS DATA ==== */
-
-var url = 'https://raw.githubusercontent.com/urutau-nz/x-minute-city/master/data/results/destinations_region.csv';
-d3.csv(url, d3.autoType, function(error, json) {
-  if(error)
-  {
-    return console.error(error);
-  }
-  city_destinations = json;
-
-  if (DEBUGGING) {
-      console.log("Destinations Imported");
-      console.log(city_destinations);
-  };
-})
-
-
-/* ==== LOAD HISTROGRAM DATA ==== */
-
-var histogram_data = [];
-var temp_all_regions = [];
-var url = "https://raw.githubusercontent.com/urutau-nz/x-minute-city/master/data/results/access_histogram.csv";
-d3.csv(url, d3.autoType, function(error, json) {
-    if(error)
-    {
-      return console.error(error);
-    }
-    histogram_data = json;
-  
-    if (DEBUGGING) {
-        console.log("Histogram Data Imported");
-        console.log(histogram_data);
-    };
-
-    updateFilteredHistogramData("supermarket", "Auckland", "walking");
-}) 
 
 
 
@@ -415,8 +264,12 @@ Params:
 var filtered_distances = [];
 var distances_by_geoid = {};
 function updateFilteredDistances(sli, year, pop) {
-    filtered_distances = distances.filter(d => d.rise == sli);
-    distances_by_geoid = Object.assign({}, ...filtered_distances.map((d) => ({[d.geoid]: d.distance})));
+    if (pop == "isolated") {
+      filtered_distances = isolated_pops.filter(d => d.year == year || !d.year);
+    } else {
+      filtered_distances = exposed_pops.filter(d => d.year == year || !d.year);
+    }
+    distances_by_geoid = Object.assign({}, ...filtered_distances.filter(d => d.rise == sli).map((d) => ({[d.geoid]: d.pop})));
 
     if (DEBUGGING) {
         console.log("Updated Filtered Distances");
@@ -430,18 +283,6 @@ function updateFilteredDistances(sli, year, pop) {
 
 
 
-var filtered_histogram_data = [];
-function updateFilteredHistogramData(sli, year, pop) {
-    filtered_histogram_data = histogram_data.filter(d => true); // Add Demographics && Region
-    
-    if (DEBUGGING) {
-        console.log("Updated Filtered Histrogram Data");
-        console.log(">> " + sli);
-        console.log(">> " + year);
-        console.log(">> " + pop);
-        console.log(filtered_histogram_data);
-    };
-} 
 
 /* First update to map */
 function initMap() {
@@ -453,25 +294,20 @@ function initMap() {
           }
       }, 100);
   } else {
-    updateMap("supermarket", "walking");
+    updateMap();
   }
 }
 
 
 
 /* Updates entire map */
-function updateMap(sli, year, pop) {
-  console.log(map.getCenter());
-
+function updateMap(sli="2", year="2020", pop="isolated") {
   // Update Data
   updateFilteredDistances(sli, year, pop);
-  updateFilteredHistogramData(sli, year, pop);
 
   // Update Graphics
   updateBlocks();
-  updateMarkers(); 
   updateGraph();
   
   setScaleLegend();
-  setAvailabilityLegend();
 }

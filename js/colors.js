@@ -1,10 +1,10 @@
 
 
-var cmap_duration = [{"idx" : 0, "label" : "20+ min", "lower" : 20, "upper" : 25, "text" : "black", "fill" : '#440154'},
-            {"idx" : 1, "label" : "20 min", "lower" : 15, "upper" : 20, "text" : "black", "fill" : '#404387'},
-            {"idx" : 2, "label" : "15 min", "lower" : 10, "upper" : 15, "text" : "black", "fill" : '#29788E'},
-            {"idx" : 3, "label" : "10 min", "lower" : 5, "upper" : 10, "text" : "black", "fill" : '#22A784'},
-            {"idx" : 4, "label" : "5 min", "lower" : 0, "upper" : 5, "text" : "black", "fill" : '#79D151'}];
+var cmap_population = [{"idx" : 0, "label" : "100,000+", "lower" : 100000, "upper" : 200000, "text" : "black", "fill" : '#440154'},
+            {"idx" : 1, "label" : "< 100,000", "lower" : 50000, "upper" : 100000, "text" : "black", "fill" : '#404387'},
+            {"idx" : 2, "label" : "< 50,000", "lower" : 25000, "upper" : 50000, "text" : "black", "fill" : '#29788E'},
+            {"idx" : 3, "label" : "< 25,000", "lower" : 10000, "upper" : 25000, "text" : "black", "fill" : '#22A784'},
+            {"idx" : 4, "label" : "< 10,000", "lower" : 0, "upper" : 10000, "text" : "black", "fill" : '#79D151'}];
 
 var cmap_distance = [{"idx" : 0, "label" : "8+ km", "default": 8, "lower" : 8, "upper" : 2000, "text" : "white", "fill" : '#000'},
             {"idx" : 1, "label" : "8 km", "default": 4, "lower" : 4, "upper" : 8, "text" : "black", "fill" : '#440154'},
@@ -13,7 +13,7 @@ var cmap_distance = [{"idx" : 0, "label" : "8+ km", "default": 8, "lower" : 8, "
             {"idx" : 4, "label" : "800 m", "default": 0.4, "lower" : 0.4, "upper" : 0.8, "text" : "black", "fill" : '#22A784'},
             {"idx" : 5, "label" : "400 m", "default": 0, "lower" : 0, "upper" : 0.4, "text" : "black", "fill" : '#79D151'}];
 
-var cmap = cmap_duration;
+var cmap = cmap_population;
 
 var cdest = {'1': "#40F", '2': "#FCF000", '3': "#FF5050"}
 

@@ -35,11 +35,15 @@ function highlightFeature(e) {
       opacity: 1,
       fillOpacity: 0.75
     });
+    
+    var title = popMenu.value;
+    title = title[0].toUpperCase() + title.slice(1).toLowerCase();
 
     // Update Mouse Info
     var mouse_info = document.getElementById("mouseInfo");
     mouse_info.style.visibility = "visible";
-    mouse_info.innerHTML = "Distance: " + Math.floor(distance) + "min";
+    mouse_info.innerHTML = title + " Population: "; //+ layer.feature.properties.id + " ";
+    mouse_info.innerHTML += Math.floor(distance).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 /* Resets a block's highlight on mouseout, and hides the distance pop-up
 Params:
@@ -91,80 +95,16 @@ function style(feature) {
 */
 var geojsonLayer = null;
 function updateBlocks() {
-    if (geojsonLayer) {
+    if (!geojsonLayer) {
         // Already exists, must be removed
-        map.removeLayer(geojsonLayer);
+        geojsonLayer = L.geoJSON(topojson.feature(blocks, blocks.objects.data), 
+        {style : style, onEachFeature : onEachFeature}
+        ).addTo(map);
     }
-    geojsonLayer = L.geoJSON(topojson.feature(city_topology, city_topology.objects.data), 
-              {style : style, onEachFeature : onEachFeature}
-              ).addTo(map);
+    geojsonLayer.setStyle(style);
 }
 
 
-
-
-
-
-
-/* ====== DESTINATION MARKERS ===== */
-
-function highlightMarker(e) {
-    var marker = e.target;
-    var d = marker.destination;
-    marker.setStyle({
-        radius: 8,
-    });
-
-    // Update Mouse Info
-    var mouse_info = document.getElementById("mouseInfo");
-    mouse_info.style.visibility = "visible";
-    mouse_info.style.background = "rgb(255,255,255)";
-
-    var out = "";
-    if (d.name && d.name.length > 0) {
-        out += '<h3 style="margin:5px 0;">' + d.name + '&nbsp;<span style="font-size:1.2em;color:' + marker.options.fillColor + '">&#9679;</span></h3>';
-    } else {
-        out += '<h3 style="margin:5px 0;"><span style="font-style:italic">';
-        out += amenities.filter(d => d[1] == amenityMenu.value)[0][0];
-        out += '</span>&nbsp;<span style="font-size:1.2em;color:' + marker.options.fillColor + '">&#9679;</span></h3>';
-    }
-    mouse_info.innerHTML = out;
-}
-function resetHighlightMarker(e) {
-    var marker = e.target;
-    marker.setStyle({
-        radius: 3,
-    });
-    
-    // Update Mouse Info
-    var mouse_info = document.getElementById("mouseInfo");
-    mouse_info.style.visibility = "hidden";
-    mouse_info.style.background = "rgba(255,255,255, 0.8)";
-}
-/* Updates all markers on the map
-*/
-var markerLayer = null;
-var timeValue = 0;
-function updateMarkers(m) {
-    var markers = [];
-    for (d of filtered_destinations) {
-        const col = "#55F";
-        marker = L.circleMarker([d.lat, d.lon]).setStyle({
-            radius: 3,
-            fillColor: col,
-            color: "#000",
-            weight: 0,
-            opacity: 1,
-            fillOpacity: 1
-        }).addTo(geojsonLayer).on({
-            mouseover: highlightMarker,
-            mouseout: resetHighlightMarker
-        });
-        marker.destination = d;
-        markers.push(marker);
-    }
-    markerLayer = L.layerGroup(markers);
-}
 
 
 
