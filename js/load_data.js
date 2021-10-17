@@ -171,7 +171,7 @@ function checkLoaded() {
 }
 
 var url = 'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/isolation_county.csv';
-d3.csv(url, (d) => ({geoid: d.geoid_county, year: +d.year, rise: +d.rise, pop: +d.U7B001_isolated}), function(error, json) 
+d3.csv(url, (d) => ({geoid: d.geoid_county, year: +d.year, rise: +d.rise, pop: +d.count}), function(error, json) 
   {
     if(error)
     {
