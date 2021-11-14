@@ -26,9 +26,17 @@ amenity_legend.onAdd = function (map) {
     demographic_drop += '<option value="exposed">Exposed</option>';
     demographic_drop += '<option value="isolated" selected>Isolated</option>';
     demographic_drop += '</select></div></td>';
+    
+    state_drop = '<td><h3 style="display:inline">State:</h3></td>' + 
+                    '<td><div class="location_drop_div" style="float: right"><select class="location_drop" id="stateDropDown">';
+    state_drop += '<option value="All" selected>All</option>';
+    for (state in state_centers) {
+        if (state != 'All') state_drop += '<option value="' + state + '">' + state + '</option>';
+    }
+    state_drop += '</select></div></td>';
 
     div.innerHTML = title + '<hr>'  + location_drop + '<hr><table style="width:100%;"><tr>' + demographic_drop + '</tr><tr>' + 
-                     amenity_drop + '</tr></table>';
+                     amenity_drop + '</tr><tr>' + state_drop + '</tr></table>';
     
     return div;
 };
@@ -58,6 +66,17 @@ var yearMenu = document.getElementById("yearDropDown");
 yearMenu.onchange = function() {
     updateMap(sliMenu.value, yearMenu.value, popMenu.value);
 }
+
+/* Updates the map on changing the state
+*/
+var stateMenu = document.getElementById("stateDropDown");
+stateMenu.onchange = function() {
+    var newView = state_centers[stateMenu.value];
+    map.setView(newView.center, newView.zoom);
+    updateFilteredCounties(stateMenu.value);
+    updateCounties();
+}
+
 
 
 
@@ -102,6 +121,11 @@ function setScaleLegend(div = null) {
     var title = popMenu.value;
     title = title[0].toUpperCase() + title.slice(1).toLowerCase();
     div.innerHTML = '<h3 style="font-size:0.9rem;margin:0.2rem;">' + title + ' Population:</h3>' + table;
+}
+
+/* FOR MANUALLY SETTING STATE ZOOMS & CENTERS */ 
+document.getElementById('scale_legend').onclick = function () {
+    console.log({'center': map.getCenter(), 'zoom': map.getZoom()});
 }
 
 

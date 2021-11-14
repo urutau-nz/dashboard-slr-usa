@@ -29,21 +29,22 @@ Params:
 function highlightFeature(e) {
     var layer = e.target;
     let distance = distances_by_geoid[layer.feature.properties.id];
+    if (typeof distances_by_geoid[layer.feature.properties.id] != "undefined") {
+        layer.setStyle({
+        weight: 3,
+        opacity: 1,
+        fillOpacity: 0.75
+        });
+        
+        var title = popMenu.value;
+        title = title[0].toUpperCase() + title.slice(1).toLowerCase();
 
-    layer.setStyle({
-      weight: 3,
-      opacity: 1,
-      fillOpacity: 0.75
-    });
-    
-    var title = popMenu.value;
-    title = title[0].toUpperCase() + title.slice(1).toLowerCase();
-
-    // Update Mouse Info
-    var mouse_info = document.getElementById("mouseInfo");
-    mouse_info.style.visibility = "visible";
-    mouse_info.innerHTML = title + " Population: "; //+ layer.feature.properties.id + " ";
-    mouse_info.innerHTML += Math.floor(distance).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        // Update Mouse Info
+        var mouse_info = document.getElementById("mouseInfo");
+        mouse_info.style.visibility = "visible";
+        mouse_info.innerHTML = title + " Population: "; //+ layer.feature.properties.id + " ";
+        mouse_info.innerHTML += Math.floor(distance).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
 }
 /* Resets a block's highlight on mouseout, and hides the distance pop-up
 Params:
@@ -84,8 +85,10 @@ function style(feature) {
     let col;
     if (filtered_distances.length == 0) { 
         col="#000000";
-    } else {
+    } else if (typeof distances_by_geoid[feature.properties.id] != "undefined") {
         col = getColor(distances_by_geoid[feature.properties.id]);
+    } else {
+        col = "#FFF"
     }
     return { fillColor: col, weight: 1, color: col, opacity: 0.2, fillOpacity: 0.5};
 }
@@ -93,15 +96,25 @@ function style(feature) {
 
 /* Updates all blocks on the map
 */
-var geojsonLayer = null;
-function updateBlocks() {
-    if (!geojsonLayer) {
+var geojsonCountyLayer = null;
+var geojsonTractLayer = null;
+function updateCounties() {
+    if (geojsonCountyLayer) {
         // Already exists, must be removed
-        geojsonLayer = L.geoJSON(topojson.feature(blocks, blocks.objects.data), 
+        map.removeLayer(geojsonCountyLayer);
+    }
+    if (geojsonTractLayer) {
+        // Already exists, must be removed
+        map.removeLayer(geojsonTractLayer);
+    }
+    geojsonCountyLayer = L.geoJSON(topojson.feature(filtered_counties, filtered_counties.objects.county), 
+    {style : style, onEachFeature : onEachFeature}
+    ).addTo(map);
+    if (stateMenu.value != 'All') {
+        geojsonTractLayer = L.geoJSON(topojson.feature(filtered_tracts, filtered_tracts.objects.tract), 
         {style : style, onEachFeature : onEachFeature}
         ).addTo(map);
     }
-    geojsonLayer.setStyle(style);
 }
 
 

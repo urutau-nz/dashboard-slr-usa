@@ -1,260 +1,288 @@
-
-
 /* ==== MODULAR IMPORTS (EXPERIMENTAL!) ==== */
 
-/** CSVImport()
- * Asynchronously imports a csv at a given address, and passes the return value into a custom,
- * specified function.
- * 
- * @param {String} url - Url to import from.
- * @param {function} data_conversion - For converting the csv object into the desired raw object.
- * @param {'o'/'d'/'od'} return_type - Returns either the raw [o]bject, a custom-keyed [d]ict, or both.
- * @param {function(return_value)} success_action - A function to be run after collecting the object.
- *                                                  Takes the return value as a parameter.
- * @param {function(item)?} keygen - Optional param for generating a custom-keyed dict.
- *                                   Takes an item of the object as a parameter.
- *//*
-function CSVImport(url, data_conversion, return_type, success_action, keygen=null) {
-  var complete_action = function (error, json) {
-    if(error)
-    {
-      return console.error(error);
-    }
-    var object = json;
-
-    var dict;
-    if (['d','od'].includes(return_type.toLowerCase()) && keygen != null) {
-      // Generate custom-keyed dict
-      dict = Object.assign({}, ...object.map((d) => ({[keygen(d)]: d})));
-    } else {
-      dict = null;
-    }
-
-    var output;
-    switch (return_type.toLowerCase()) {
-      case 'o': output = object; break;
-      case 'd': output = dict; break;
-      case 'od': output = (object, dict); break;
-    }
-
-    if (DEBUGGING) {
-        console.log("Item Imported");
-        console.log(output);
-    };
-    
-    success_action(output);
+class ImportManager {
+  constructor () {
+    this.checks = {};
+    this.outputs = {};
+    this.imports = {};
+    this.oncomplete = (d) => (null);
   }
-  d3.csv(url, data_conversion, complete_action);
+  isFinished() {
+    for (var id in this.checks) {
+      if (!this.checks[id]) return false;
+    }
+    return true;
+  }
+  addImport(id, title, type, url, csv_typing = d3.autoType) {
+    this.imports[id] = {'id': id, 'title': title, 'type': type, 'url': url, 'csv_typing': csv_typing};
+    this.checks[id] = false;
+    this.outputs[id] = null;
+  }
+  onComplete(func) {
+    this.oncomplete = func;
+  }
+  runImports() {
+    var onImports = {};
+    var impmod = this;
+    for (var imp_id in this.imports) {
+      var imp = this.imports[imp_id];
+      var gen = function(imp) {
+        return function(error, json) {
+          if (error) return console.error(error);
+          impmod.outputs[imp.id] = json;
+          impmod.checks[imp.id] = true;
+          if (DEBUGGING) {
+            console.log(imp.title + " Imported");
+            console.log(json);
+          }
+          if (impmod.isFinished()) impmod.oncomplete(impmod.outputs);
+        }
+      };
+      onImports[imp_id] = gen(imp);
+      if (imp.type == 'csv') {
+        d3.csv(imp.url, imp.csv_typing, onImports[imp_id]);
+      } else if (imp.type == 'json') {
+        d3.json(imp.url, onImports[imp_id]);
+      }
+    }
+  }
 }
 
 
 
+/* MODULAR IMPORTS */
 
-/** waitOnImports()
- * Waits synchronously on a set of CSV (!) imports to complete, then returns.
- * 
- * @param {List} import_list - A list of sets of parameters to pass into CSVImport.
- *//*
-function waitOnImports(import_list, success_action) {
-  var imports_remaining = import_list.length;
-  var wait_func = async () => {
-    if(imports_remaining > 0) {
-      window.setTimeout(wait_func, 100); 
-    } else {
-      success_action();
-    }
-  }
+var import_manager = new ImportManager();
 
-  for (param_set of import_list) {
-    console.log(param_set);
-    var new_success_action = function (output) {
-      param_set[3](output);
-      imports_remaining--;
-      console.log("REMAINING:", imports_remaining);
-    }
-    CSVImport(param_set[0], param_set[1], param_set[2], new_success_action, 
-              (param_set.length >= 5 ? param_set[4] : null));
-  }
+import_manager.addImport('isolation_county', 'Isolated County Pops', 'csv', 
+    'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/isolation_county.csv',
+    (d) => ({geoid: d.geoid_county, year: +d.year, rise: +d.rise, pop: +d.count}));
 
-  wait_func();
-}
+import_manager.addImport('exposure_county', 'Exposed County Pops', 'csv', 
+    'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/exposure_county.csv',
+    (d) => ({geoid: d.geoid_county, year: +d.year, rise: +d.rise, state: d.state, pop: +d.U7B001}));
 
+import_manager.addImport('isolation_tract', 'Isolated Tract Pops', 'csv', 
+    'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/isolation20_tract.csv',
+    (d) => ({geoid: d.geoid_tract, year: +d.year, rise: +d.rise, state: d.state, pop: +d.U7B001_isolated}));
 
+import_manager.addImport('tracts', 'Tract JSON', 'json', 
+    'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/tract.json');
 
+import_manager.addImport('counties', 'County JSON', 'json', 
+    'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/county.json');
 
-
-
-
-var initial_imports = [];
-
-var distances = [];
-let distances_import = ['https://raw.githubusercontent.com/urutau-nz/dash-access-resilience/main/data/distances.csv',
-  ({city,hazard,id_orig,distance,dest_type,dist_type,isolated}) => ({city: city,hazard: hazard,id_orig: id_orig,distance:+distance/1000,dest_type: dest_type,dist_type: dist_type,isolated: isolated}),
-  'o',
-  (object) => {
-    console.log(object);
-    distances = object;
-  }
-];
-console.log(distances_import);
-initial_imports.push(distances_import);
-
-var cities = [];
-let cities_import = ['https://raw.githubusercontent.com/urutau-nz/dash-access-resilience/main/data/map_locs.csv',
-  d3.autoType,
-  'd',
-  (dict) => {
-    cities = dict;
-    console.log("cities!!!!");
-  },
-  (d => d.city)
-];
-initial_imports.push(cities_import);
-
-var all_hazard_info = [];
-let hazard_info_import = ['https://raw.githubusercontent.com/urutau-nz/dash-access-resilience/main/data/hazard_info.csv',
-  d3.autoType,
-  'o',
-  (object) => {
-    all_hazard_info = object;
-  }
-];
-initial_imports.push(hazard_info_import);
-
-var all_hazards = [];
-let hazards_import = ['https://raw.githubusercontent.com/urutau-nz/dash-access-resilience/main/data/hazards.csv',
-  ({city, hazard1, hazard2, hazard3, hazard4}) => ({city: city, hazard1:hazard1, hazard2:hazard2,hazard3:hazard3,hazard4:hazard4}),
-  'o',
-  (object) => {
-    all_hazards = object;
-  }
-];
-initial_imports.push(hazards_import);
-
-var road_lengths = [];
-let road_lengths_import = ['https://raw.githubusercontent.com/urutau-nz/dash-access-resilience/main/data/road_lengths.csv',
-  ({city, hazard, name, total, full}) => ({city: city, hazard: hazard, name: name, total: +total, full: +full}),
-  'o',
-  (object) => {
-    road_lengths = object;
-  }
-];
-initial_imports.push(road_lengths_import);
-
-
-var INIT_IMPORTS = false;
-waitOnImports(initial_imports, initMap);
-
-
-
-var destinations = [];
-
-
-
-
-
-
-  
-/* ==== LOAD DISTANCES DATA ==== */
+import_manager.onComplete(importsComplete);
+import_manager.runImports();
 
 var isolated_pops = [];
-var isolated_pops_loaded = false;
-
+var isolated_tract_pops = [];
 var exposed_pops = [];
-var exposed_pops_loaded = false;
+var counties = [];
+var tracts = [];
 
-var blocks = [];
-var blocks_loaded = false;
+var all_county_geometries = [];
+var all_tract_geometries = [];
 
-function checkLoaded() {
-  return isolated_pops_loaded && exposed_pops_loaded && blocks_loaded;
+function importsComplete(imports) {
+  isolated_pops = imports['isolation_county'];
+  exposed_pops = imports['exposure_county'];
+  isolated_tract_pops = imports['isolation_tract'];
+  counties = imports['counties'];
+  tracts = imports['tracts'];
+  all_county_geometries = all_county_geometries.concat(counties.objects.county.geometries);
+  all_tract_geometries = all_tract_geometries.concat(tracts.objects.tract.geometries);
+  initMap();
 }
 
-var url = 'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/isolation_county.csv';
-d3.csv(url, (d) => ({geoid: d.geoid_county, year: +d.year, rise: +d.rise, pop: +d.count}), function(error, json) 
-  {
-    if(error)
-    {
-      return console.error(error);
-    }
-    isolated_pops = json;
-    isolated_pops_loaded = true;
-
-    if (DEBUGGING) {
-        console.log("Isolated Pops Imported");
-        console.log(isolated_pops);
-    };
-    
-    if (checkLoaded()) {
-      initMap();
-    }
-  });
-  
-var url = 'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/exposure_county.csv';
-d3.csv(url, (d) => ({geoid: d.geoid_county, year: +d.year, rise: +d.rise, state: d.state, pop: +d.U7B001}), function(error, json) 
-  {
-    if(error)
-    {
-      return console.error(error);
-    }
-    exposed_pops = json;
-    exposed_pops_loaded = true;
-
-    if (DEBUGGING) {
-        console.log("Exposed Pops Imported");
-        console.log(exposed_pops);
-    };
-    
-    if (checkLoaded()) {
-      initMap();
-    }
-  });
   
 
 
-/* ==== LOAD BLOCKS DATA ==== */
-
-var url = 'https://projects.urbanintelligence.co.nz/slr-usa/data/results/county.json'; 
-d3.json(url, function(error, json) 
-  {
-    if(error)
-    {
-      return console.error(error);
-    }
-    blocks = json;
-    blocks_loaded = true;
-
-    // This removes the duplicate geometry ids, by finding the point at which it starts looping,
-    // and cutting the geometries off there.
-    var prev = [];
-    var filtered_geometries = [];
-    for (geometry_id in blocks.objects.data.geometries){
-        prop_id = blocks.objects.data.geometries[geometry_id].properties.id;
-        if (!prev.includes(prop_id)) {
-            prev.push(prop_id);
-            filtered_geometries.push(blocks.objects.data.geometries[geometry_id]);
-        }
-    }
-    blocks.objects.data.geometries = filtered_geometries;
-
-    if (DEBUGGING) {
-        console.log("Blocks Imported");
-        console.log(blocks);
-    };
-    
-    if (checkLoaded()) {
-      initMap();
-    }
-  });
 
 
 
 
 
+var state_centers = {
+  "Alabama": {
+    "center": {
+        "lat": 31.69779270531287,
+        "lng": -86.8853759765625
+    },
+    "zoom": 8
+},
+  "California": {
+    "center": {
+        "lat": 36.4433803110554,
+        "lng": -118.74023437500001
+    },
+    "zoom": 7
+},
+  "Connecticut": {
+    "center": {
+        "lat": 41.53839396783225,
+        "lng": -72.71850585937501
+    },
+    "zoom": 9
+},
+  "Delaware": {
+    "center": {
+        "lat": 39.128994951066765,
+        "lng": -75.24261474609376
+    },
+    "zoom": 9
+},
+  "District of Columbia": {
+    "center": {
+        "lat": 38.89236892551996,
+        "lng": -77.03338623046876
+    },
+    "zoom": 11
+},
+  "Florida": {
+    "center": {
+        "lat": 28.570049879647403,
+        "lng": -82.57324218750001
+    },
+    "zoom": 7
+},
+  "Georgia": {
+    "center": {
+        "lat": 32.084901663548315,
+        "lng": -82.12829589843751
+    },
+    "zoom": 8
+},
+  "Hawaii": {
+    "center": {
+        "lat": 20.702169504822308,
+        "lng": -156.76116943359375
+    },
+    "zoom": 8
+},
+  "Louisiana": {
+    "center": {
+        "lat": 30.346805868962075,
+        "lng": -91.47216796875001
+    },
+    "zoom": 8
+},
+  "Maine": {
+    "center": {
+        "lat": 45.35600542155823,
+        "lng": -69.00512695312501
+    },
+    "zoom": 7
+},
+  "Maryland": {
+    "center": {
+        "lat": 39.05118518880596,
+        "lng": -76.915283203125
+    },
+    "zoom": 8
+},
+  "Massachusetts": {
+    "center": {
+        "lat": 42.05031239367961,
+        "lng": -71.18316650390626
+    },
+    "zoom": 9
+},
+  "Mississippi": {
+    "center": {
+        "lat": 31.529385064020936,
+        "lng": -89.384765625
+    },
+    "zoom": 8
+},
+  "New Hampshire": {
+    "center": {
+        "lat": 43.47484730064834,
+        "lng": -71.52099609375001
+    },
+    "zoom": 8
+},
+  "New Jersey": {
+    "center": {
+        "lat": 40.176774799905445,
+        "lng": -74.69604492187501
+    },
+    "zoom": 8
+},
+  "New York": {
+    "center": {
+        "lat": 41.53531012183376,
+        "lng": -73.70727539062501
+    },
+    "zoom": 8
+},
+  "North Carolina": {
+    "center": {
+        "lat": 35.29719384502174,
+        "lng": -77.47009277343751
+    },
+    "zoom": 8
+},
+  "Oregon": {
+    "center": {
+        "lat": 44.09942068528654,
+        "lng": -120.73974609375001
+    },
+    "zoom": 7
+},
+  "Pennsylvania": {
+    "center": {
+        "lat": 40.591013883455936,
+        "lng": -76.54174804687501
+    },
+    "zoom": 8
+},
+  "Rhode Island": {
+    "center": {
+        "lat": 41.671373126259354,
+        "lng": -71.44958496093751
+    },
+    "zoom": 10
+},
+  "South Carolina": {
+    "center": {
+        "lat": 33.47956309444182,
+        "lng": -80.06835937500001
+    },
+    "zoom": 8
+},
+  "Texas": {
+    "center": {
+        "lat": 28.82061274169944,
+        "lng": -95.284423828125
+    },
+    "zoom": 7
+},
+  "Virginia": {
+    "center": {
+        "lat": 37.74682893940135,
+        "lng": -76.88781738281251
+    },
+    "zoom": 8
+},
+  "Washington": {
+    "center": {
+        "lat": 47.327653995607115,
+        "lng": -121.39892578125001
+    },
+    "zoom": 7
+},
+  "All": {
+    "center": {
+        "lat": 39.38526381099774,
+        "lng": -97.03125000000001
+    },
+    "zoom": 5
+  }
+};
 
 
 
-  
 
 /* Updates filtered_distances to distances filtered by the user's current selections.
 Params:
@@ -266,6 +294,7 @@ var distances_by_geoid = {};
 function updateFilteredDistances(sli, year, pop) {
     if (pop == "isolated") {
       filtered_distances = isolated_pops.filter(d => d.year == year || !d.year);
+      filtered_distances = filtered_distances.concat(isolated_tract_pops.filter(d => d.year == year || !d.year));
     } else {
       filtered_distances = exposed_pops.filter(d => d.year == year || !d.year);
     }
@@ -277,6 +306,34 @@ function updateFilteredDistances(sli, year, pop) {
         console.log(">> " + year);
         console.log(filtered_distances);
         console.log(distances_by_geoid);
+    };
+}
+
+var filtered_counties;
+var filtered_tracts;
+function updateFilteredCounties(state) {
+    if (state != 'All') {
+      filtered_counties = {};
+      var geometries = all_county_geometries.filter(d => d.properties.state_code != state);
+      Object.assign(filtered_counties, counties);
+      filtered_counties.objects.county.geometries = geometries;
+
+      filtered_tracts = {};
+      var geometries = all_tract_geometries.filter(d => d.properties.state_name == state);
+      Object.assign(filtered_tracts, tracts);
+      filtered_tracts.objects.tract.geometries = geometries;
+
+    } else {
+      filtered_tracts = {};
+      filtered_counties = {};
+      Object.assign(filtered_counties, counties);
+    }
+
+    if (DEBUGGING) {
+        console.log("Updated Filtered Counties & Tracts");
+        console.log(">> " + state);
+        console.log(filtered_counties);
+        console.log(filtered_tracts);
     };
 }
 
@@ -294,6 +351,7 @@ function initMap() {
           }
       }, 100);
   } else {
+    updateFilteredCounties('All');
     updateMap();
   }
 }
@@ -306,7 +364,7 @@ function updateMap(sli="2", year="2020", pop="isolated") {
   updateFilteredDistances(sli, year, pop);
 
   // Update Graphics
-  updateBlocks();
+  updateCounties();
   updateGraph();
   
   setScaleLegend();
