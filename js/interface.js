@@ -7,12 +7,12 @@ amenity_legend.onAdd = function (map) {
     var div = L.DomUtil.create('div', 'info legend');
 
     title = '<h4 id="time_header">Sea Level Rise USA ' + 
-            '<a id="helpLink" title="Help!" href="#" onclick="showHelpPopup();return false;"><img class="qimg" src="qmark.svg"></a>' + 
+            '<a id="help-link" title="Help!" href="#" onclick="showHelpPopup();return false;"><div class="bubble"><div>?</div></div></a>' + 
             '</h4>';
 
 
-    location_drop = '<h3 style="text-align:left;">Sea Level: <span id="sliText">+2ft</span></h3>' + 
-                  '<input style="width: 100%;" type="range" id="sliSlider" name="vol" min="0" max="10" value="2">';
+    location_drop = '<td><h3 style="text-align:left;font-size:16px;">Sea Level:</h3></td><td><h3 style="text-align: right;font-size:16px;margin-right:5px;"><span id="sliText">+2ft</span></h3></td></tr><tr>' + 
+                  '<td colspan="2"><input style="width: 20rem;" type="range" id="sliSlider" name="vol" min="0" max="10" value="2"></td>';
     
     amenity_drop = '<td><h3 style="display:inline">Year:</h3></td>' + 
                     '<td><div class="location_drop_div" style="float: right"><select class="location_drop" id="yearDropDown">' +
@@ -35,7 +35,7 @@ amenity_legend.onAdd = function (map) {
     }
     state_drop += '</select></div></td>';
 
-    div.innerHTML = title + '<hr>'  + location_drop + '<hr><table style="width:100%;"><tr>' + demographic_drop + '</tr><tr>' + 
+    div.innerHTML = title + '<table style="width:100%;border-spacing: 0 8px;"><tr>' + location_drop + '</tr><tr>' + demographic_drop + '</tr><tr>' + 
                      amenity_drop + '</tr><tr>' + state_drop + '</tr></table>';
     
     return div;

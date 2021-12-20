@@ -11,8 +11,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.0.1/d3.min.js" integrity="sha512-1e0JvdNhUkvFbAURPPlFKcX0mWu/b6GT9e0uve7BW4MFxJ15q4ZCd/Llz+B7/oh+qhw7/l6Q1ObPt6aAuR01+Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js" integrity="sha512-4UKI/XKm3xrvJ6pZS5oTRvIQGIzZFoXR71rRBb1y2N+PbwAsKa5tPl2J6WvbEvwN3TxQCm8hMzsl/pO+82iRlg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-    <link rel="icon" href="https://urbanintelligence.co.nz/wp-content/uploads/2021/07/logo_white_315_favicon.png" sizes="32x32">
-    <link rel="icon" href="https://urbanintelligence.co.nz/wp-content/uploads/2021/07/logo_white_315_favicon.png" sizes="192x192">
+    <link rel="icon" href="https://urbanintelligence.co.nz/wp-content/uploads/2021/11/Urban-Intelligence-Solo-Mark-Light-Blue-Circle-32px.png" sizes="32x32">
+    <link rel="icon" href="https://urbanintelligence.co.nz/wp-content/uploads/2021/11/Urban-Intelligence-Solo-Mark-Light-Blue-Circle-192px.png" sizes="192x192">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.2.0/dist/leaflet.css" />
 
@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css" />
     <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
 
-    <title>Sea Level Rise USA</title>
+    <title>Sea Level Rise USA - Urban Intelligence</title>
 
     <link rel="stylesheet" href="fcamap.css"/>
 
@@ -38,15 +38,26 @@
       gtag('config', 'UA-123686738-4');
     </script> -->
 
+    <!-- GOOGLE FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,800;1,300;1,400;1,500;1,600;1,800&display=swap" rel="stylesheet">
+
 </head>
 <body>    
 
     
   <div class="folium-map" id="map" ></div>
+  
   <div id="footer">
-    <img src="https://urbanintelligence.co.nz/wp-content/uploads/2021/07/logo_white_315_favicon.png"></img>
-    <div class="attribution">© 2021 Urban Intelligence.</div>
-  </div>
+    <div style="height:2rem;width:100%;overflow:none;">
+      <a href="https://urbanintelligence.co.nz/" target="_blank"><img src="https://urbanintelligence.co.nz/wp-content/uploads/2021/11/Solo-Mark-Small-White-32px.png"></img></a>
+      <div class="attribution">© 2021 Urban Intelligence.</div>
+      <div style="position: absolute; top: 0; right: 0; float:right;">
+        <a href="https://www.canterbury.ac.nz/engineering/schools/cnre/research/systems/" target="_blank"><img style="width: 9rem" src="https://www.canterbury.ac.nz/style-guide/logos/logo-tabs/svg/UC_White_LAN_White.svg"></img></a>
+      </div>
+    </div>
+    </div>
   <div id="help-popup">
     <h2>Direct and indirect impacts of sea-level rise on USA communities</h2>
     <p>

@@ -1,6 +1,8 @@
 body {
   user-select: none;
   overflow: hidden;
+  color: white;
+  font-family: 'Rubik', Arial, Helvetica, sans-serif;
 }
 
 
@@ -11,31 +13,33 @@ body {
 
 .info { 
   font: 14px/16px Arial, Helvetica, sans-serif; 
-  background: rgba(255,255,255,0.8); 
-  padding: 6px 8px; border-radius: 5px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.2); } 
-.info h4  { margin: 0 0 5px 0; color: #777; }
-.legend   { text-align: left; line-height: 18px; color: #555; } 
+  background: #04497c; 
+  padding: 6px 8px; 
+  border-radius: 5px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.2); 
+} 
+.info h4  { margin: 0 0 5px 0;  }
+.legend   { text-align: left; line-height: 18px;  } 
 .legend i { width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.7; }
 
-.legend   { font-size: 12px; text-align: left; line-height: 15px; color: #555; }
+.legend   { font-size: 12px; text-align: left; line-height: 15px; }
 .legend table { padding: 0px; border-spacing: 0px; }
 
 .legend .cblock { padding: 0px; margin: 0px;  width: 25px; opacity: 0.7; }
 
 .legend h3 {
   text-align: center;
-  font: 15px/16px Arial, Helvetica, sans-serif;
-  color: #777;
-  font-size: 16px;
-  font-weight: bold;
-  margin: 10px 0px 5px 0;
+  font: 15px/16px 'Rubik', Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 5px 0px;
 }
 
 .legend h4 {
-  color: #888;
   text-align: center;
   margin: 10px 0;
+  font-size: 24px;
+  font-family: 'Rubik', Arial, Helvetica, sans-serif;
 }
 
 #legend_table {
@@ -90,20 +94,17 @@ select {
   -webkit-appearance: menulist;
   -moz-appearance: menulist;
   appearance: menulist;
-  padding: 3px 5px;
-  border-radius: 1px;
-  border: solid;
-  border-width: 1px;
-  border-color: black;
-  background-color: rgba(240, 240, 240, 0.7);
-  margin: 0px 4px;
-  font-size: 12px;
-  font-weight: bold; 
-  color: #777;
-  -webkit-border-radius: 0;
+  padding: 4px 12px;
+  border-radius: 5px;
+  border-width: 0;
+  background-color: #1469a9;
+  font-size: 13px;
+  font-weight: 400;
   border: 0;
-  outline: 1px solid black;
+  outline: none;
   outline-offset: 0px;
+  color: white;
+  font-family: 'Rubik', Arial, Helvetica, sans-serif;
 }
 
 label {
@@ -171,8 +172,7 @@ button {
 }
 
 .location_drop {
-  width: 98%;
-  margin: 2%;
+  width: 100%;
 }
 
 #location_radio_div {
@@ -213,26 +213,19 @@ button {
   background-color: #222;
 }
 #footer img {
-  height: 1.6rem;
-  width: 1.6rem;
-  padding: 0.3rem 1rem;
+  height: 2rem;
+  width: 2rem;
+  padding: 0rem 0.5rem;
 }
 #footer .attribution {
   color: #AAA;
   position: absolute;
-  left: 4rem;
+  left: 3rem;
   top: 0.5rem;
   font-size: 0.8rem;
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.info {
-  font-size: 20px;
-  font-family: Arial, Helvetica, sans-serif;
-  background: rgba(255,255,255,0.8);
-  padding: 6px 8px; border-radius: 5px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.2);
-}
 
 .legend .cblock { padding: 0px; margin: 0px;  opacity: 0.7; }
 .legend .ltext  { padding: 0px 5px 0px 10px; }
@@ -265,7 +258,7 @@ a {
 
 
 .intro_tour {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Rubik', Arial, Helvetica, sans-serif;
   font-size: 18px;
   color: #222;
   min-width: 650px;
@@ -300,7 +293,7 @@ div.intro_tour .introjs-button {
   padding: 8px 40px;
   border-radius: 10px;
   box-shadow: 0 0 15px rgb(0 0 0 / 20%);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Rubik', Arial, Helvetica, sans-serif;
   background: rgb(255,255,255);
   left: 50%; 
   top: 50%; 
@@ -314,7 +307,7 @@ div.intro_tour .introjs-button {
 #help-popup h2 {
   font-size: 24px;
   font-weight: bold;
-  color: #AAA;
+  color: #04497c;
 }
 
 #help-popup .contact {
@@ -331,9 +324,9 @@ div.intro_tour .introjs-button {
 }
 
 #help-popup button {
-  background-color: #F9F9F9;
+  background-color: #FFF0;
   color: #999;
-  border-color: #999;
+  border: none;
   position: absolute;
   top: 10px;
   right: 10px;
@@ -344,9 +337,7 @@ div.intro_tour .introjs-button {
   padding: 0;
 }
 #help-popup button:hover {
-  background-color: #EEE;
   color: black;
-  border-color: black;
 }
 
 
@@ -380,6 +371,9 @@ div.intro_tour .introjs-button {
 
 #scale_legend {
   width: 149px;
+  background-color: white;
+  border: 3px solid #04497c;
+  color: #04497c;
 }
 
 
@@ -396,13 +390,11 @@ div.intro_tour .introjs-button {
 
 #intro-logo {
   background-color: white;
-  height: 4rem;
-  width: 2rem;
   margin: 0;
 }
 #intro-logo img {
-  width: 100%;
-  height: 100%;
+  width: 220px;
+  height: 110px;
   object-fit: contain;
 }
 
@@ -416,6 +408,9 @@ div.intro_tour .introjs-button {
   transition: height 0.2s ease-in-out, width 0.2s ease-in-out, padding-top 0.2s ease-in-out;
   position: relative;
   overflow: hidden;
+  background-color: white;
+  border: 3px solid #04497c;
+  color: #04497c;
 }
 
 
@@ -483,4 +478,35 @@ div.intro_tour .introjs-button {
 
 #availability_legend {
   width: 149px;
+}
+
+
+#sliSlider {
+  margin-bottom: 0.8rem;
+  margin-top: -0.2rem;
+}
+
+#time_header {
+  margin-bottom: 0;
+}
+
+
+
+
+#help-link .bubble {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.9rem;
+  height: 1.2rem;
+  width: 1.2rem;
+  background-color: white;
+  border-radius: 2rem;
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: #0b2948;
+}
+#help-link .bubble div {
+  position: absolute;
+  top: -0.26rem;
+  right: 0.22rem;
 }
