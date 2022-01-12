@@ -14,11 +14,6 @@ amenity_legend.onAdd = function (map) {
     location_drop = '<td><h3 style="text-align:left;font-size:16px;">Sea Level:</h3></td><td><h3 style="text-align: right;font-size:16px;margin-right:5px;"><span id="sliText">+2ft</span></h3></td></tr><tr>' + 
                   '<td colspan="2"><input style="width: 20rem;" type="range" id="sliSlider" name="vol" min="0" max="10" value="2"></td>';
     
-    amenity_drop = '<td><h3 style="display:inline">Year:</h3></td>' + 
-                    '<td><div class="location_drop_div" style="float: right"><select class="location_drop" id="yearDropDown">' +
-                    '<option value="2020" selected>2020</option>' +
-                    '<option value="2010">2010</option>' +
-                    '</select></div></td>';
 
 
     demographic_drop = '<td style="min-width: 100px;"><h3 style="display:inline">Population:</h3></td>' + 
@@ -35,8 +30,7 @@ amenity_legend.onAdd = function (map) {
     }
     state_drop += '</select></div></td>';
 
-    div.innerHTML = title + '<table style="width:100%;border-spacing: 0 8px;"><tr>' + location_drop + '</tr><tr>' + demographic_drop + '</tr><tr>' + 
-                     amenity_drop + '</tr><tr>' + state_drop + '</tr></table>';
+    div.innerHTML = title + '<table style="width:100%;border-spacing: 0 8px;"><tr>' + location_drop + '</tr><tr>' + demographic_drop + '</tr><tr>' + state_drop + '</tr></table>';
     
     return div;
 };
@@ -50,22 +44,16 @@ var sliMenu = document.getElementById("sliSlider");
 sliMenu.oninput = function() {
     var sliText = document.getElementById("sliText");
     sliText.innerText = "+" + sliMenu.value + "ft";
-    updateMap(sliMenu.value, yearMenu.value, popMenu.value);
+    updateMap();
 }
 
 /* Relocates map to focus on region selected, when region is selected. 
 */
 var popMenu = document.getElementById("popDropDown");
 popMenu.onchange = function() {
-    updateMap(sliMenu.value, yearMenu.value, popMenu.value);
+    updateMap();
 }
 
-/* Updates the map on changing the mode
-*/
-var yearMenu = document.getElementById("yearDropDown");
-yearMenu.onchange = function() {
-    updateMap(sliMenu.value, yearMenu.value, popMenu.value);
-}
 
 /* Updates the map on changing the state
 */

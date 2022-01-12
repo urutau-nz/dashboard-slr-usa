@@ -63,7 +63,11 @@ import_manager.addImport('exposure_county', 'Exposed County Pops', 'csv',
     (d) => ({geoid: d.geoid_county, year: +d.year, rise: +d.rise, state: d.state, pop: +d.U7B001}));
 
 import_manager.addImport('isolation_tract', 'Isolated Tract Pops', 'csv', 
-    'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/isolation20_tract.csv',
+    'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/isolation_tract.csv',
+    (d) => ({geoid: d.geoid_tract, year: +d.year, rise: +d.rise, state: d.state, pop: +d.U7B001_isolated}));
+
+import_manager.addImport('exposure_tract', 'Exposed Tract Pops', 'csv', 
+    'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/exposure_tract.csv',
     (d) => ({geoid: d.geoid_tract, year: +d.year, rise: +d.rise, state: d.state, pop: +d.U7B001_isolated}));
 
 import_manager.addImport('tracts', 'Tract JSON', 'json', 
@@ -291,7 +295,8 @@ Params:
 */
 var filtered_distances = [];
 var distances_by_geoid = {};
-function updateFilteredDistances(sli, year, pop) {
+function updateFilteredDistances(sli, pop) {
+    let year = '2020';
     if (pop == "isolated") {
       filtered_distances = isolated_pops.filter(d => d.year == year || !d.year);
       filtered_distances = filtered_distances.concat(isolated_tract_pops.filter(d => d.year == year || !d.year));
@@ -359,9 +364,16 @@ function initMap() {
 
 
 /* Updates entire map */
-function updateMap(sli="2", year="2020", pop="isolated") {
+function updateMap(sli, pop) {
+  if (!sli) {
+    sli = sliMenu.value;
+  }
+  if (!pop) {
+    pop = popMenu.value;
+  }
+
   // Update Data
-  updateFilteredDistances(sli, year, pop);
+  updateFilteredDistances(sli, pop);
 
   // Update Graphics
   updateCounties();
