@@ -55,26 +55,26 @@ class ImportManager {
 var import_manager = new ImportManager();
 
 import_manager.addImport('isolation_county', 'Isolated County Pops', 'csv', 
-    'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/isolation_county.csv',
-    (d) => ({geoid: d.geoid_county, year: +d.year, rise: +d.rise, pop: +d.count}));
+    'https://projects.urbanintelligence.co.nz/slr-usa/data/results/isolation_county.csv',
+    (d) => ({geoid: d.geoid_county, rise: +d.rise, state: d.state_name, state_code: d.state_code, pop: +d.U7B001}));
 
 import_manager.addImport('exposure_county', 'Exposed County Pops', 'csv', 
-    'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/exposure_county.csv',
-    (d) => ({geoid: d.geoid_county, year: +d.year, rise: +d.rise, state: d.state, pop: +d.U7B001}));
+'https://projects.urbanintelligence.co.nz/slr-usa/data/results/exposure_county.csv',
+(d) => ({geoid: d.geoid_county, rise: +d.rise, state: d.state_name, state_code: d.state_code, pop: +d.U7B001}));
 
 import_manager.addImport('isolation_tract', 'Isolated Tract Pops', 'csv', 
-    'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/isolation_tract.csv',
-    (d) => ({geoid: d.geoid_tract, year: +d.year, rise: +d.rise, state: d.state, pop: +d.U7B001_isolated}));
+'https://projects.urbanintelligence.co.nz/slr-usa/data/results/isolation_tract.csv',
+(d) => ({geoid: d.geoid_tract, rise: +d.rise, state: d.state_name, state_code: d.state_code, pop: +d.U7B001}));
 
 import_manager.addImport('exposure_tract', 'Exposed Tract Pops', 'csv', 
-    'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/exposure_tract.csv',
-    (d) => ({geoid: d.geoid_tract, year: +d.year, rise: +d.rise, state: d.state, pop: +d.U7B001_isolated}));
+'https://projects.urbanintelligence.co.nz/slr-usa/data/results/exposure_tract.csv',
+(d) => ({geoid: d.geoid_tract, rise: +d.rise, state: d.state_name, state_code: d.state_code, pop: +d.U7B001}));
 
 import_manager.addImport('tracts', 'Tract JSON', 'json', 
-    'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/tract.json');
+'https://projects.urbanintelligence.co.nz/slr-usa/data/results/tract.json');
 
 import_manager.addImport('counties', 'County JSON', 'json', 
-    'https://raw.githubusercontent.com/urutau-nz/dashboard-slr-usa/master/data/results/county.json');
+'https://projects.urbanintelligence.co.nz/slr-usa/data/results/county.json');
 
 import_manager.onComplete(importsComplete);
 import_manager.runImports();
@@ -82,6 +82,7 @@ import_manager.runImports();
 var isolated_pops = [];
 var isolated_tract_pops = [];
 var exposed_pops = [];
+var exposed_tract_pops = [];
 var counties = [];
 var tracts = [];
 
@@ -92,6 +93,7 @@ function importsComplete(imports) {
   isolated_pops = imports['isolation_county'];
   exposed_pops = imports['exposure_county'];
   isolated_tract_pops = imports['isolation_tract'];
+  exposed_tract_pops = imports['exposure_tract'];
   counties = imports['counties'];
   tracts = imports['tracts'];
   all_county_geometries = all_county_geometries.concat(counties.objects.county.geometries);
@@ -302,6 +304,7 @@ function updateFilteredDistances(sli, pop) {
       filtered_distances = filtered_distances.concat(isolated_tract_pops.filter(d => d.year == year || !d.year));
     } else {
       filtered_distances = exposed_pops.filter(d => d.year == year || !d.year);
+      filtered_distances = filtered_distances.concat(exposed_tract_pops.filter(d => d.year == year || !d.year));
     }
     distances_by_geoid = Object.assign({}, ...filtered_distances.filter(d => d.rise == sli).map((d) => ({[d.geoid]: d.pop})));
 
