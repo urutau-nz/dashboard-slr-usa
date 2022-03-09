@@ -1,53 +1,3 @@
-/* ==== MODULAR IMPORTS (EXPERIMENTAL!) ==== */
-
-class ImportManager {
-  constructor () {
-    this.checks = {};
-    this.outputs = {};
-    this.imports = {};
-    this.oncomplete = (d) => (null);
-  }
-  isFinished() {
-    for (var id in this.checks) {
-      if (!this.checks[id]) return false;
-    }
-    return true;
-  }
-  addImport(id, title, type, url, csv_typing = d3.autoType) {
-    this.imports[id] = {'id': id, 'title': title, 'type': type, 'url': url, 'csv_typing': csv_typing};
-    this.checks[id] = false;
-    this.outputs[id] = null;
-  }
-  onComplete(func) {
-    this.oncomplete = func;
-  }
-  runImports() {
-    var onImports = {};
-    var impmod = this;
-    for (var imp_id in this.imports) {
-      var imp = this.imports[imp_id];
-      var gen = function(imp) {
-        return function(error, json) {
-          if (error) return console.error(error);
-          impmod.outputs[imp.id] = json;
-          impmod.checks[imp.id] = true;
-          if (DEBUGGING) {
-            console.log(imp.title + " Imported");
-            console.log(json);
-          }
-          if (impmod.isFinished()) impmod.oncomplete(impmod.outputs);
-        }
-      };
-      onImports[imp_id] = gen(imp);
-      if (imp.type == 'csv') {
-        d3.csv(imp.url, imp.csv_typing, onImports[imp_id]);
-      } else if (imp.type == 'json') {
-        d3.json(imp.url, onImports[imp_id]);
-      }
-    }
-  }
-}
-
 
 
 /* MODULAR IMPORTS */
@@ -56,19 +6,19 @@ var import_manager = new ImportManager();
 
 import_manager.addImport('isolation_county', 'Isolated County Pops', 'csv', 
     'https://projects.urbanintelligence.co.nz/slr-usa/data/results/isolation_county.csv',
-    (d) => ({geoid: d.geoid_county, rise: +d.rise, state: d.state_name, state_code: d.state_code, pop: +d.U7B001}));
+    (d) => ({type: 'county', geoid: d.geoid_county, rise: +d.rise, state: d.state_name, state_code: d.state_code, pop: +d.U7B001, perc: +d.U7B001_percentage}));
 
 import_manager.addImport('exposure_county', 'Exposed County Pops', 'csv', 
 'https://projects.urbanintelligence.co.nz/slr-usa/data/results/exposure_county.csv',
-(d) => ({geoid: d.geoid_county, rise: +d.rise, state: d.state_name, state_code: d.state_code, pop: +d.U7B001}));
+(d) => ({type: 'county', geoid: d.geoid_county, rise: +d.rise, state: d.state_name, state_code: d.state_code, pop: +d.U7B001, perc: +d.U7B001_percentage}));
 
 import_manager.addImport('isolation_tract', 'Isolated Tract Pops', 'csv', 
 'https://projects.urbanintelligence.co.nz/slr-usa/data/results/isolation_tract.csv',
-(d) => ({geoid: d.geoid_tract, rise: +d.rise, state: d.state_name, state_code: d.state_code, pop: +d.U7B001}));
+(d) => ({type: 'tract', geoid: d.geoid_tract, rise: +d.rise, state: d.state_name, state_code: d.state_code, pop: +d.U7B001, perc: +d.U7B001_percentage}));
 
 import_manager.addImport('exposure_tract', 'Exposed Tract Pops', 'csv', 
 'https://projects.urbanintelligence.co.nz/slr-usa/data/results/exposure_tract.csv',
-(d) => ({geoid: d.geoid_tract, rise: +d.rise, state: d.state_name, state_code: d.state_code, pop: +d.U7B001}));
+(d) => ({type: 'tract', geoid: d.geoid_tract, rise: +d.rise, state: d.state_name, state_code: d.state_code, pop: +d.U7B001, perc: +d.U7B001_percentage}));
 
 import_manager.addImport('tracts', 'Tract JSON', 'json', 
 'https://projects.urbanintelligence.co.nz/slr-usa/data/results/tract.json');
@@ -76,31 +26,75 @@ import_manager.addImport('tracts', 'Tract JSON', 'json',
 import_manager.addImport('counties', 'County JSON', 'json', 
 'https://projects.urbanintelligence.co.nz/slr-usa/data/results/county.json');
 
+import_manager.addImport('states', 'States JSON', 'json', 
+'https://projects.urbanintelligence.co.nz/slr-usa/data/results/states.json');
+
+
+import_manager.addImport('exposure_state', 'Exposure State Pops', 'csv', 
+'https://projects.urbanintelligence.co.nz/slr-usa/data/results/exposure_state.csv');
+
+import_manager.addImport('isolation_state', 'Isolation State Pops', 'csv', 
+'https://projects.urbanintelligence.co.nz/slr-usa/data/results/isolation_state.csv');
+
+
+import_manager.addImport('delayed_onset_histogram_data', 'Delayed Onset Histogram', 'csv', 
+'https://projects.urbanintelligence.co.nz/slr-usa/data/results/delayed_onset_histogram_data.csv');
+
+
+
+import_manager.onProgress(importsProgress);
 import_manager.onComplete(importsComplete);
 import_manager.runImports();
 
+
 var isolated_pops = [];
 var isolated_tract_pops = [];
+var isolated_state_pops = [];
 var exposed_pops = [];
 var exposed_tract_pops = [];
+var exposed_state_pops = [];
 var counties = [];
 var tracts = [];
+var states = [];
 
 var all_county_geometries = [];
 var all_tract_geometries = [];
 
+var delayed_onset_histogram_data = [];
+var state_codes = {'All': 'all'};
+
+
 function importsComplete(imports) {
-  isolated_pops = imports['isolation_county'];
-  exposed_pops = imports['exposure_county'];
-  isolated_tract_pops = imports['isolation_tract'];
-  exposed_tract_pops = imports['exposure_tract'];
+  isolated_pops = imports['isolation_county'].filter(d => d.rise > 0);
+  exposed_pops = imports['exposure_county'].filter(d => d.rise > 0);
+  isolated_tract_pops = imports['isolation_tract'].filter(d => d.rise > 0);
+  exposed_tract_pops = imports['exposure_tract'].filter(d => d.rise > 0);
+  isolated_state_pops = imports['isolation_state'].filter(d => d.rise > 0);
+  exposed_state_pops = imports['exposure_state'].filter(d => d.rise > 0);
+
   counties = imports['counties'];
   tracts = imports['tracts'];
+  states = imports['states'];
   all_county_geometries = all_county_geometries.concat(counties.objects.county.geometries);
   all_tract_geometries = all_tract_geometries.concat(tracts.objects.tract.geometries);
+
+  delayed_onset_histogram_data = imports['delayed_onset_histogram_data'];
+
+  // Generate State Code dict from isolated
+  isolated_state_pops.forEach(d => {
+    if (!Object.keys(state_codes).includes(d.state_name)) {
+      state_codes[d.state_name] = d.state_code;
+    }
+  });
+
+  
+  $('.introjs-donebutton').addClass("active");
+  $('.introjs-donebutton').text("Let's go!");
   initMap();
 }
 
+function importsProgress(completed, total) {
+}
   
 
 
@@ -299,14 +293,17 @@ var filtered_distances = [];
 var distances_by_geoid = {};
 function updateFilteredDistances(sli, pop) {
     let year = '2020';
-    if (pop == "isolated") {
-      filtered_distances = isolated_pops.filter(d => d.year == year || !d.year);
-      filtered_distances = filtered_distances.concat(isolated_tract_pops.filter(d => d.year == year || !d.year));
-    } else {
-      filtered_distances = exposed_pops.filter(d => d.year == year || !d.year);
-      filtered_distances = filtered_distances.concat(exposed_tract_pops.filter(d => d.year == year || !d.year));
+    let dfilter = function (d) {
+      return (stateMenu.value == 'All' || d.state == stateMenu.value);
     }
-    distances_by_geoid = Object.assign({}, ...filtered_distances.filter(d => d.rise == sli).map((d) => ({[d.geoid]: d.pop})));
+    if (pop == "isolated") {
+      filtered_distances = isolated_pops.filter(dfilter);
+      filtered_distances = filtered_distances.concat(isolated_tract_pops.filter(dfilter));
+    } else {
+      filtered_distances = exposed_pops.filter(dfilter);
+      filtered_distances = filtered_distances.concat(exposed_tract_pops.filter(dfilter));
+    }
+    distances_by_geoid = Object.assign({}, ...filtered_distances.filter(d => d.rise == sli).map((d) => ({[d.geoid]: d})));
 
     if (DEBUGGING) {
         console.log("Updated Filtered Distances");
@@ -322,9 +319,6 @@ var filtered_tracts;
 function updateFilteredCounties(state) {
     if (state != 'All') {
       filtered_counties = {};
-      var geometries = all_county_geometries.filter(d => d.properties.state_code != state);
-      Object.assign(filtered_counties, counties);
-      filtered_counties.objects.county.geometries = geometries;
 
       filtered_tracts = {};
       var geometries = all_tract_geometries.filter(d => d.properties.state_name == state);
@@ -335,6 +329,7 @@ function updateFilteredCounties(state) {
       filtered_tracts = {};
       filtered_counties = {};
       Object.assign(filtered_counties, counties);
+      filtered_counties.objects.county.geometries = all_county_geometries;
     }
 
     if (DEBUGGING) {
@@ -359,7 +354,7 @@ function initMap() {
           }
       }, 100);
   } else {
-    updateFilteredCounties('All');
+    updateFilteredCounties(stateMenu.value);
     updateMap();
   }
 }

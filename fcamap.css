@@ -6,13 +6,14 @@ body {
 }
 
 
+
 .caption{ 
   width: 90%; margin: 0 auto;
-  font: 14px/16px Arial, Helvetica, sans-serif; 
+  font: 14px/16px 'Rubik', Arial, Helvetica, sans-serif; 
 }
 
 .info { 
-  font: 14px/16px Arial, Helvetica, sans-serif; 
+  font: 14px/16px 'Rubik', Arial, Helvetica, sans-serif; 
   background: #04497c; 
   padding: 6px 8px; 
   border-radius: 5px;
@@ -74,7 +75,7 @@ select option:disabled {
   margin: 4px;
   padding: 4px;
   width: 30ex;
-  font: 12px/12px Arial, Helvetica, sans-serif;
+  font: 12px/12px 'Rubik', Arial, Helvetica, sans-serif;
 }
 
 form {
@@ -110,9 +111,9 @@ select {
 label {
   border: 0px;
   padding: 0px;
-  margin: 0px 7px;
+  margin: 0px;
   color: #777;
-  font: 14px Arial, Helvetica, sans-serif;
+  font: 14px 'Rubik', Arial, Helvetica, sans-serif;
 }
 
 .pcenter {
@@ -121,7 +122,7 @@ label {
 }
 
 a.dl_link {
-  font: 12px Arial, Helvetica, sans-serif;
+  font: 12px 'Rubik', Arial, Helvetica, sans-serif;
   color: #777;
   text-decoration: none;
 }
@@ -151,7 +152,7 @@ input[type="file"] {
 }
 
 button {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Rubik', Arial, Helvetica, sans-serif;
   font-weight: bold;
   font-size: 12px;
   background-color: #EEE;
@@ -181,7 +182,7 @@ button {
 
 .location_drop_div {
   display:inline-block;
-  width: 98%;
+  width: 100%;
 }
 
 #regionDropDown {
@@ -241,7 +242,7 @@ td {
 }
 
 a {
-  font: 12px Arial, Helvetica, sans-serif;
+  font: 12px 'Rubik', Arial, Helvetica, sans-serif;
   color: #777;
   text-decoration: none;
 }
@@ -390,21 +391,21 @@ div.intro_tour .introjs-button {
 
 #intro-logo {
   background-color: white;
+  padding-top: 6px;
   margin: 0;
 }
 #intro-logo img {
   width: 220px;
-  height: 110px;
   object-fit: contain;
 }
 
 
 
 #dist-graph {
-  border-radius: 1rem;
-  padding-top: 2rem;
-  width: 460px;
-  height: 300px;
+  border-radius: 0.2rem;
+  padding: 0;
+  width: 500px;
+  height: 365px;
   transition: height 0.2s ease-in-out, width 0.2s ease-in-out, padding-top 0.2s ease-in-out;
   position: relative;
   overflow: hidden;
@@ -412,12 +413,15 @@ div.intro_tour .introjs-button {
   border: 3px solid #04497c;
   color: #04497c;
 }
+#dist-graph.wide {
+  width: 700px;
+}
 
 
 #dist-graph .graph-axis-label {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Rubik', Arial, Helvetica, sans-serif;
   font-size: 13px;
-  font-weight: bold;
+  font-weight: 600;
   color: rgb(0,0,0);
   opacity: 0.8;
 }
@@ -427,19 +431,17 @@ div.intro_tour .introjs-button {
 #graph_expansion_button {
   border-radius: 2rem;
   font-weight: bold;
-  margin-top: 2px;
   padding: 0.3rem;
   position: absolute;
-  top: 0.4rem;
-  left: 0.4rem;
-  color: rgba(0,0,0,0.5);
-  background-color: rgba(255,255,255,0);
+  top: 10px;
+  left: 10px;
+  color: rgba(255,255,255,1);
   cursor: pointer;
-  font-size: 24px;
+  font-size: 18px;
 } 
 
 #graph_expansion_button:hover {
-  color: rgba(0,0,0,1);
+  color: rgba(255,255,255,0.7);
 }
 
 #graph-toggle {
@@ -506,7 +508,193 @@ div.intro_tour .introjs-button {
   color: #0b2948;
 }
 #help-link .bubble div {
+  font-family: 'Rubik', Arial;
   position: absolute;
-  top: -0.26rem;
+  top: -0.1rem;
   right: 0.22rem;
+}
+
+
+
+.introjs-donebutton {
+  width: 100%;
+    background-color: #CCC;
+    background-image: none;
+    color: #555;
+    font-size: 1rem;
+    margin: 0;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 0.8rem 0;
+    border: none;
+    text-align: center;
+    font-family: 'Rubik', Arial;
+    text-shadow: none;
+    font-weight: 600;
+    border-radius: 0;
+    cursor: default;
+}
+.introjs-donebutton.active {
+  background-color: #04497c;
+  color: white;
+  cursor: pointer;
+  pointer-events: all;
+}
+.introjs-donebutton.active:hover {
+  background-color: #023861;
+}
+
+.intro_tour {
+  padding-bottom: 4rem;
+  overflow: hidden;
+}
+
+
+
+#graph-loading-logos-table {
+  height: 100%;
+  width: 100%;
+}
+#graph-loading-logos-table td {
+  width: 100%;
+  height: 50%;
+  text-align: center;
+}
+#graph-loading-logos-table img {
+  width: 200px;
+  opacity: 0.1;
+}
+
+
+
+.highlight-detection-box {
+  pointer-events: auto !important;
+}
+
+
+
+
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 25px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #AAA;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 17px;
+  width: 17px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #1469a9;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #1469a9;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(17px);
+  -ms-transform: translateX(17px);
+  transform: translateX(17px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 25px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+
+#graph_menu_button {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 4px;
+  height: 20px;
+  width: 20px;
+  border-radius: 4px;
+}
+#graph_menu_button.hide {
+  display:none;
+}
+#graph_menu_button:hover {
+  background-color: #00274480;
+}
+#graph_menu_button.active {
+  background-color: #002744;
+}
+#graph_menu_button img {
+  height: 20px;
+  width: 20px;
+  cursor: pointer;
+}
+
+
+
+#graph-menu-div {
+  padding: 4px 0;
+  display: none;
+  position: absolute;
+  top: 50px;
+  right: 6px;
+  font-size: 0.8rem;
+  font-weight: 300;
+  background-color: #04497c;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow:0 0 10px rgb(0 0 0 / 50%);
+}
+#graph-menu-div.active {
+  display: block;
+}
+#graph-menu-div>table {
+  border-spacing: 0;
+}
+#graph-menu-div>table td {
+  cursor: pointer;
+  color: white;
+  padding: 0.5em 1em;
+  width: 100%;
+}
+#graph-menu-div>table td:hover {
+  background-color: #002744;
+}
+#graph-menu-div>table td.disabled {
+  background-color: #04497c;
+  color: #FFF8;
+  cursor: default;
 }

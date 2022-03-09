@@ -28,21 +28,49 @@ Params:
 */
 function highlightFeature(e) {
     var layer = e.target;
-    let distance = distances_by_geoid[layer.feature.properties.id];
-    if (typeof distances_by_geoid[layer.feature.properties.id] != "undefined") {
+    let data = distances_by_geoid[layer.feature.properties.id];
+    let data_exists = typeof data != "undefined";
+    
+    var props = layer.feature.properties;
+
+    if (!data_exists && props.state_name != stateMenu.value && stateMenu.value != 'All') {
+        // If the shape is missing bc we're zoomed into a state and it's not in it, don't show it.
+        return 0;
+    }
+
+    var distance = (data_exists ? (capitaMenu.checked ? data.perc : data.pop) : 0);
+    var header = '';
+    if ((data_exists ? data.type == 'tract' : typeof props.name == "undefined")) {
+        layer.setStyle({
+        fillOpacity: 1
+        });
+
+    } else if ((data_exists ? data.type == 'county' : typeof props.name != "undefined")) {
         layer.setStyle({
         weight: 3,
         opacity: 1,
         fillOpacity: 0.75
         });
-        
-        var title = popMenu.value;
-        title = title[0].toUpperCase() + title.slice(1).toLowerCase();
 
-        // Update Mouse Info
-        var mouse_info = document.getElementById("mouseInfo");
-        mouse_info.style.visibility = "visible";
-        mouse_info.innerHTML = title + " Population: "; //+ layer.feature.properties.id + " ";
+
+        header = "<div style='font-weight: bold; font-style: italic; margin-bottom: 3px;'>" + props.name + ", " + props.state_code + "</div>";
+
+    }
+    
+    var title = popMenu.value;
+    title = title[0].toUpperCase() + title.slice(1).toLowerCase();
+
+
+    // Update Mouse Info
+    var mouse_info = document.getElementById("mouseInfo");
+    mouse_info.style.visibility = "visible";
+    if (capitaMenu.checked) {
+        // Per Capita
+        mouse_info.innerHTML = header + title + " Percentage: "; //+ layer.feature.properties.id + " ";
+        mouse_info.innerHTML += distance + '%';
+    } else {
+        // Not Per Capita
+        mouse_info.innerHTML = header + title + " Population: "; //+ layer.feature.properties.id + " ";
         mouse_info.innerHTML += Math.floor(distance).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 }
@@ -52,12 +80,31 @@ Params:
 */
 function resetHighlight(e) {
     var layer = e.target;
+    let data = distances_by_geoid[layer.feature.properties.id];
+    let data_exists = typeof data != "undefined";
     
-    layer.setStyle({
-      weight: 1,
-      opacity: 0.2,
-      fillOpacity: 0.5
-    });
+    var props = layer.feature.properties;
+    
+    if ((data_exists ? data.type == 'tract' : typeof props.name == "undefined")) {
+        layer.setStyle({
+        fillOpacity: 0.6
+        });
+
+    } else if ((data_exists ? data.type == 'county' : typeof props.name != "undefined")) {
+        
+        let opacity = 0.2;
+        let fillOpacity = 0.5;
+        if (stateMenu.value != 'All') {
+            opacity *= 0.2;
+            fillOpacity *= 0.2;
+        }
+        
+        layer.setStyle({
+            weight: 1,
+            opacity: opacity,
+            fillOpacity: fillOpacity
+            });
+    }
     
     // Update Mouse Info
     var mouse_info = document.getElementById("mouseInfo");
@@ -77,27 +124,64 @@ function onEachFeature(feature, layer) {
 
 
 
+
+
+
+
+
 /* Styles individual blocks. Called by Leaflet API.
 Params:
     feature - Leaflet feature object for an individual block.
 */
 function style(feature) {
     let col;
+    let data = distances_by_geoid[feature.properties.id];
+    if (filtered_distances.length == 0) { 
+        col="#000";
+    } else if (typeof data != "undefined") {
+        if (capitaMenu.checked) {
+            col = getPercColor(data.perc);
+        } else {
+            col = getColor(data.pop);
+        }
+    } else {
+        col = getColor(0);
+    }
+    let opacity = 0.2;
+    let fillOpacity = 0.5;
+    if (stateMenu.value != 'All') {
+        opacity *= 0.2;
+        fillOpacity *= 0.2;
+    }
+
+    return { fillColor: col, weight: 1, color: col, opacity: opacity, fillOpacity: fillOpacity};
+}
+
+function tractStyle(feature) {
+    let col;
+    let data = distances_by_geoid[feature.properties.id];
     if (filtered_distances.length == 0) { 
         col="#000000";
-    } else if (typeof distances_by_geoid[feature.properties.id] != "undefined") {
-        col = getColor(distances_by_geoid[feature.properties.id]);
+    } else if (typeof data != "undefined") {
+        if (capitaMenu.checked) {
+            col = getPercColor(data.perc);
+        } else {
+            col = getTractColor(data.pop);
+        }
     } else {
-        col = "#FFF"
+        col = getColor(0);
     }
-    return { fillColor: col, weight: 1, color: col, opacity: 0.2, fillOpacity: 0.5};
+    return { fillColor: col, weight: 1, color: '#FFF0', opacity: 0, fillOpacity: 0.6};
 }
+
+
 
 
 /* Updates all blocks on the map
 */
 var geojsonCountyLayer = null;
 var geojsonTractLayer = null;
+var geojsonStateLayer = null;
 function updateCounties() {
     if (geojsonCountyLayer) {
         // Already exists, must be removed
@@ -107,13 +191,30 @@ function updateCounties() {
         // Already exists, must be removed
         map.removeLayer(geojsonTractLayer);
     }
-    geojsonCountyLayer = L.geoJSON(topojson.feature(filtered_counties, filtered_counties.objects.county), 
-    {style : style, onEachFeature : onEachFeature}
-    ).addTo(map);
-    if (stateMenu.value != 'All') {
-        geojsonTractLayer = L.geoJSON(topojson.feature(filtered_tracts, filtered_tracts.objects.tract), 
+    if (geojsonStateLayer) {
+        // Already exists, must be removed
+        map.removeLayer(geojsonStateLayer);
+    }
+
+    if (stateMenu.value == 'All') {
+        geojsonCountyLayer = L.geoJSON(topojson.feature(filtered_counties, filtered_counties.objects.county), 
         {style : style, onEachFeature : onEachFeature}
         ).addTo(map);
+    } else  {
+        geojsonTractLayer = L.geoJSON(topojson.feature(filtered_tracts, filtered_tracts.objects.tract), 
+        {style : tractStyle, onEachFeature : onEachFeature}
+        ).addTo(map);
+
+        geojsonStateLayer = L.geoJSON(states, 
+        {style : { weight: 1, color: "#555", opacity: 0.3, fillOpacity: 0}, filter : function (d) { return d.properties.NAME == stateMenu.value;}}
+        ).addTo(map);
+        $(".leaflet-overlay-pane svg path:last-child").css('pointer-events', 'none');
+
+        //L.geoJSON(states, 
+        //    {style : { weight: 1, color: "#FFF", opacity: 1, fillOpacity: 0}, filter : function (d) { return d.properties.NAME == stateMenu.value;}}
+        //    ).addTo(geojsonStateLayer);
+        //$(".leaflet-overlay-pane svg path:last-child").css('pointer-events', 'none');
+
     }
 }
 

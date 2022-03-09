@@ -11,8 +11,8 @@ amenity_legend.onAdd = function (map) {
             '</h4>';
 
 
-    location_drop = '<td><h3 style="text-align:left;font-size:16px;">Sea Level:</h3></td><td><h3 style="text-align: right;font-size:16px;margin-right:5px;"><span id="sliText">+2ft</span></h3></td></tr><tr>' + 
-                  '<td colspan="2"><input style="width: 20rem;" type="range" id="sliSlider" name="vol" min="0" max="10" value="2"></td>';
+    location_drop = '<td><h3 style="text-align:left;font-size:16px;">Sea Level Rise:</h3></td><td><h3 style="text-align: right;font-size:16px;margin-right:5px;"><span id="sliText">+2ft</span></h3></td></tr><tr>' + 
+                  '<td colspan="2"><input style="width: 20rem;" type="range" id="sliSlider" name="vol" min="1" max="10" value="2"></td>';
     
 
 
@@ -30,7 +30,13 @@ amenity_legend.onAdd = function (map) {
     }
     state_drop += '</select></div></td>';
 
-    div.innerHTML = title + '<table style="width:100%;border-spacing: 0 8px;"><tr>' + location_drop + '</tr><tr>' + demographic_drop + '</tr><tr>' + state_drop + '</tr></table>';
+    var capita_switch = `<td><h3 style="display:inline">Per Capita:</h3></td>
+    <td style="text-align:right"><label class="switch">
+        <input id="capitaSwitch" type="checkbox">
+        <span class="slider round"></span>
+    </label></td>`;
+
+    div.innerHTML = title + '<table style="width:100%;border-spacing: 0 8px;"><tr>' + location_drop + '</tr><tr>' + demographic_drop + '</tr><tr>' + state_drop + '</tr><tr>' + capita_switch + '</tr></table>';
     
     return div;
 };
@@ -62,10 +68,17 @@ stateMenu.onchange = function() {
     var newView = state_centers[stateMenu.value];
     map.setView(newView.center, newView.zoom);
     updateFilteredCounties(stateMenu.value);
-    updateCounties();
+    updateMap();
 }
 
 
+/* Updates the map on changing the state
+*/
+var capitaMenu = document.getElementById("capitaSwitch");
+capitaMenu.onchange = function() {
+    console.log(capitaMenu.checked);
+    updateMap();
+}
 
 
 
@@ -97,7 +110,7 @@ function setScaleLegend(div = null) {
     if (!div) div = document.getElementById("scale_legend");
 
     var labels = [];
-    cmap.forEach( function(v) {
+    (capitaMenu.checked ? cmap_percs : (stateMenu.value == 'All' ? cmap : cmap_tracts)).forEach( function(v) {
       labels.push('<tr>' + 
           '<td class="legend cblock" id="leg' + v.idx + '" style="color:' + v.text + '; background:' + v.fill + '"></td>' +
           '<td class="ltext">' + v.label + '</td></tr>');
@@ -108,7 +121,8 @@ function setScaleLegend(div = null) {
     
     var title = popMenu.value;
     title = title[0].toUpperCase() + title.slice(1).toLowerCase();
-    div.innerHTML = '<h3 style="font-size:0.9rem;margin:0.2rem;">' + title + ' Population:</h3>' + table;
+    var bracket = `(${(capitaMenu.checked ? 'Per Capita' : (stateMenu.value == 'All' ? 'Counties' : 'Tracts'))})`;
+    div.innerHTML = `<h3 style="font-size:0.9rem;margin:0.2rem;">${title} Population ${bracket}:</h3>` + table;
 }
 
 /* FOR MANUALLY SETTING STATE ZOOMS & CENTERS */ 
@@ -132,6 +146,17 @@ graph_legend.onAdd = function(map) {
     var div = L.DomUtil.create('div', 'info legend');
     div.id = "dist-graph";
 
+    div.innerHTML = `<table id="graph-loading-logos-table">
+    <tr><td>
+    <img src="lib/round_logo.svg"\>
+    </td></tr>
+    </table>
+    `;
+    
+    
+    
+    
+    
     return div;
 };
 graph_legend.addTo(map);
@@ -168,6 +193,7 @@ info_legend.onAdd = function(map) {
     div.style.whiteSpace = "nowrap";
     div.style.fontSize = "15px";
     div.style.visibility = "hidden";
+    div.style.paddingRight = "8px";
     div.innerHTML = 'Distance: 0km';
     
     return div;
