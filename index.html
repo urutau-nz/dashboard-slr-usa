@@ -16,6 +16,8 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.2.0/dist/leaflet.css" />
 
+    <link rel="stylesheet" href="https://projects.urbanintelligence.co.nz/uivl/d3-graphs.css" />
+
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.7.0/intro.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.7.0/introjs.min.css">
 
@@ -44,7 +46,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,800;1,300;1,400;1,500;1,600;1,800&display=swap" rel="stylesheet">
 
 </head>
-<body>    
+<body>
 
     
   <div class="folium-map" id="map" ></div>
@@ -58,11 +60,13 @@
       </div>
     </div>
     </div>
+  <div id="help-backdrop">
+
+  </div>
   <div id="help-popup">
-    <h2>Direct and indirect impacts of sea-level rise on USA communities</h2>
+    <h2></h2>
     <p>
-      We argue that current assessments on risk of displacement from SLR that calculate the at risk population as those directly exposed to the water do not capture the entire impact and are therefore underestimating the risk. To begin to evaluate the full population at risk of displacement we use a measure of access to common amenities and services.<br><br>
-      Access is a common metric in the urban planning and equity literature because of its ability to capture how the spatial properties of infrastructure (e.g., road design, density of development) impact people as opposed to engineering metrics which focus more on the intrinsic properties of infrastructure (e.g., topology or reliability metrics). More recently, research has suggested access as a measure for resilience because of its ability to capture the availability of opportunities which enhance qualities such as social cohesion, economic stimulus, and even recovery capacity. Access in the context of SLR provides a complementary metric to risk of displacement for measuring burden. From the most basic level, diminished accessibility is indicative of time costs stemming from longer commute times and potentially greater greenhouse gas emissions from combustion engines. A lack of accessibility altogether to key public accommodations signals opportunity loss.
+     
     </p>
     <br>
     <span class="contact">Have suggestions or feedback? Contact us at <a href="mailto:info@urbanintelligence.co.nz?subject=About Your WREMO Project...">info@urbanintelligence.co.nz</a></span>
@@ -78,6 +82,7 @@
 
 </script> 
 <script type="text/javascript" src="https://projects.urbanintelligence.co.nz/uivl/data-loading-tools.js"></script>
+<script type="text/javascript" src="https://projects.urbanintelligence.co.nz/uivl/d3-graphs.js"></script>
 
 <script type="text/javascript" src="js/colors.js"></script>
 

@@ -7,7 +7,7 @@ amenity_legend.onAdd = function (map) {
     var div = L.DomUtil.create('div', 'info legend');
 
     title = '<h4 id="time_header">Sea Level Rise USA ' + 
-            '<a id="help-link" title="Help!" href="#" onclick="showHelpPopup();return false;"><div class="bubble"><div>?</div></div></a>' + 
+            `<a id="help-link" title="Help!" href="#" onclick="showHelpPopup('main');return false;"><div class="bubble"><img src="lib/QMark-Blue.svg"/></div></a>` + 
             '</h4>';
 
 
@@ -168,16 +168,38 @@ graph_legend.addTo(map);
 
 
 // Gives Info on Q-mark click
-function showHelpPopup(){
+function showHelpPopup(help_type){
     var popup = document.getElementById("help-popup");
     popup.style.display = "block";
 
+    $('#help-backdrop').css('display', 'block');
+
     var mouse_info = document.getElementById("mouseInfo");
     mouse_info.style.visibility = "hidden";
+
+    if (help_type == 'main') {
+        $('#help-popup h2').html(`Direct and indirect impacts of sea-level rise on USA communities`);  
+        $('#help-popup p').html(` We argue that current assessments on risk of displacement from SLR that calculate the at risk population as those directly exposed to the water do not capture the entire impact and are therefore underestimating the risk. To begin to evaluate the full population at risk of displacement we use a measure of access to common amenities and services.<br><br>
+        Access is a common metric in the urban planning and equity literature because of its ability to capture how the spatial properties of infrastructure (e.g., road design, density of development) impact people as opposed to engineering metrics which focus more on the intrinsic properties of infrastructure (e.g., topology or reliability metrics). More recently, research has suggested access as a measure for resilience because of its ability to capture the availability of opportunities which enhance qualities such as social cohesion, economic stimulus, and even recovery capacity. Access in the context of SLR provides a complementary metric to risk of displacement for measuring burden. From the most basic level, diminished accessibility is indicative of time costs stemming from longer commute times and potentially greater greenhouse gas emissions from combustion engines. A lack of accessibility altogether to key public accommodations signals opportunity loss.`);
+    
+    } else if (help_type == 'graph') {
+        if (current_graph == 'delayed_onset') { 
+            $('#help-popup h2').html(`Delayed Onset Help Title`);  
+            $('#help-popup p').html(`Delayed Onset Help Text`);    
+
+        } else if (current_graph == 'affected_population') {
+            $('#help-popup h2').html(`Affected Population Help Title`);  
+            $('#help-popup p').html(`Affected Population Help Text`);    
+
+        }
+
+    }
 }
 function hideHelpPopup() {
     var popup = document.getElementById("help-popup");
     popup.style.display = "none";
+
+    $('#help-backdrop').css('display', 'none');
 }
 
 
