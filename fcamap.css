@@ -288,10 +288,21 @@ div.intro_tour .introjs-button {
 }
 
 
+#help-backdrop {
+  display:none;
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height: 100%;
+  background-color: #16161696;
+  z-index: 1000;
+}
+
 #help-popup {
   position: absolute;
   font-size: 18px;
-  padding: 8px 40px;
+  padding: 8px 40px 20px 40px;
   border-radius: 10px;
   box-shadow: 0 0 15px rgb(0 0 0 / 20%);
   font-family: 'Rubik', Arial, Helvetica, sans-serif;
@@ -303,6 +314,7 @@ div.intro_tour .introjs-button {
   margin-top: -290px;
   z-index: 2000;
   display: none;
+  color: black;
 }
 
 #help-popup h2 {
@@ -313,7 +325,7 @@ div.intro_tour .introjs-button {
 
 #help-popup .contact {
   color: #444;
-  font-size: 16px;
+  font-size: 14px;
   font-style: italic;
   user-select: text;
 }
@@ -339,6 +351,21 @@ div.intro_tour .introjs-button {
 }
 #help-popup button:hover {
   color: black;
+}
+
+
+
+
+
+#graph-help-button {
+  position: absolute;
+  top: 0.7rem;
+  right: 2.7rem;
+  cursor: pointer;
+}
+#graph-help-button img {
+  height: 16px;
+  width: 16px;
 }
 
 
@@ -414,7 +441,7 @@ div.intro_tour .introjs-button {
   color: #04497c;
 }
 #dist-graph.wide {
-  width: 700px;
+  width: 800px;
 }
 
 
@@ -490,6 +517,7 @@ div.intro_tour .introjs-button {
 
 #time_header {
   margin-bottom: 0;
+  font-weight: 600;
 }
 
 
@@ -497,21 +525,15 @@ div.intro_tour .introjs-button {
 
 #help-link .bubble {
   position: absolute;
-  top: 0.75rem;
-  right: 0.9rem;
+  top: 0.85rem;
+  right: 1rem;
   height: 1.2rem;
   width: 1.2rem;
-  background-color: white;
   border-radius: 2rem;
-  font-weight: 800;
-  font-size: 1.2rem;
-  color: #0b2948;
 }
-#help-link .bubble div {
-  font-family: 'Rubik', Arial;
-  position: absolute;
-  top: -0.1rem;
-  right: 0.22rem;
+#help-link .bubble img {
+  height: 16px;
+  width: 16px;
 }
 
 
@@ -646,6 +668,7 @@ input:checked + .slider:before {
   padding: 4px;
   height: 20px;
   width: 20px;
+  cursor: pointer;
   border-radius: 4px;
 }
 #graph_menu_button.hide {
@@ -660,7 +683,6 @@ input:checked + .slider:before {
 #graph_menu_button img {
   height: 20px;
   width: 20px;
-  cursor: pointer;
 }
 
 
@@ -697,4 +719,34 @@ input:checked + .slider:before {
   background-color: #04497c;
   color: #FFF8;
   cursor: default;
+}
+
+
+#dist-graph .vl-graph-title {
+  fill: white;
+}
+
+
+#graph-menu-button-tooltip {
+  position: absolute;
+  top: 50px;
+  right: 2px;
+  background-color: #04497c;
+  border-radius: 4px;
+  padding: 12px 16px;
+  color: white;
+  opacity: 0.8;
+  width: 180px;
+  text-align: center;
+  font-size: 13px;
+  box-shadow: 0 0 6px #0026427d;
+}
+#graph-menu-button-tooltip .tooltip-pointer {
+  position: absolute;
+  top: -4px;
+  right: 7px;
+  background-color: #04497c;
+  width: 10px;
+  height: 10px;
+  transform: rotate(45deg);
 }
