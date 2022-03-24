@@ -53,12 +53,13 @@ function highlightFeature(e) {
         });
 
 
-        header = "<div style='font-weight: bold; font-style: italic; margin-bottom: 3px;'>" + props.name + ", " + props.state_code + "</div>";
+        header = "<div style='font-weight: 600; font-style: italic; margin-bottom: 3px;'>" + props.name + ", " + props.state_code + "</div>";
 
     }
     
     var title = popMenu.value;
     title = title[0].toUpperCase() + title.slice(1).toLowerCase();
+    if (title == 'Exposed') title = 'Inundated';
 
 
     // Update Mouse Info

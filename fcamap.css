@@ -302,15 +302,15 @@ div.intro_tour .introjs-button {
 #help-popup {
   position: absolute;
   font-size: 18px;
-  padding: 8px 40px 20px 40px;
+  padding: 8px 30px 20px 30px;
   border-radius: 10px;
   box-shadow: 0 0 15px rgb(0 0 0 / 20%);
   font-family: 'Rubik', Arial, Helvetica, sans-serif;
   background: rgb(255,255,255);
-  left: 50%; 
-  top: 50%; 
-  margin-left: -355px; 
-  width: 670px;
+  left: 50%;
+  top: 50%;
+  margin-left: -430px;
+  width: 800px;
   margin-top: -290px;
   z-index: 2000;
   display: none;
@@ -318,7 +318,7 @@ div.intro_tour .introjs-button {
 }
 
 #help-popup h2 {
-  font-size: 24px;
+  font-size: 30px;
   font-weight: bold;
   color: #04497c;
 }
@@ -333,6 +333,9 @@ div.intro_tour .introjs-button {
 #help-popup a {
   font-size: inherit;
   color: #44F;
+}
+
+#help-popup .contact a {
   font-style: italic;
 }
 
@@ -398,7 +401,7 @@ div.intro_tour .introjs-button {
 
 
 #scale_legend {
-  width: 149px;
+  width: 159px;
   background-color: white;
   border: 3px solid #04497c;
   color: #04497c;
@@ -420,6 +423,7 @@ div.intro_tour .introjs-button {
   background-color: white;
   padding-top: 6px;
   margin: 0;
+  padding-left: 15px;
 }
 #intro-logo img {
   width: 220px;
