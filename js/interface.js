@@ -18,7 +18,7 @@ amenity_legend.onAdd = function (map) {
 
     demographic_drop = '<td style="min-width: 100px;"><h3 style="display:inline">Population:</h3></td>' + 
                     '<td style="min-width: 150px;"><div class="location_drop_div" style="float: right"><select class="location_drop" id="popDropDown">';
-    demographic_drop += '<option value="exposed">Exposed</option>';
+    demographic_drop += '<option value="exposed">Inundated</option>';
     demographic_drop += '<option value="isolated" selected>Isolated</option>';
     demographic_drop += '</select></div></td>';
     
@@ -121,6 +121,7 @@ function setScaleLegend(div = null) {
     
     var title = popMenu.value;
     title = title[0].toUpperCase() + title.slice(1).toLowerCase();
+    if (title == 'Exposed') title = 'Inundated';
     var bracket = `(${(capitaMenu.checked ? 'Per Capita' : (stateMenu.value == 'All' ? 'Counties' : 'Tracts'))})`;
     div.innerHTML = `<h3 style="font-size:0.9rem;margin:0.2rem;">${title} Population ${bracket}:</h3>` + table;
 }
@@ -179,17 +180,18 @@ function showHelpPopup(help_type){
 
     if (help_type == 'main') {
         $('#help-popup h2').html(`Direct and indirect impacts of sea-level rise on USA communities`);  
-        $('#help-popup p').html(` We argue that current assessments on risk of displacement from SLR that calculate the at risk population as those directly exposed to the water do not capture the entire impact and are therefore underestimating the risk. To begin to evaluate the full population at risk of displacement we use a measure of access to common amenities and services.<br><br>
-        Access is a common metric in the urban planning and equity literature because of its ability to capture how the spatial properties of infrastructure (e.g., road design, density of development) impact people as opposed to engineering metrics which focus more on the intrinsic properties of infrastructure (e.g., topology or reliability metrics). More recently, research has suggested access as a measure for resilience because of its ability to capture the availability of opportunities which enhance qualities such as social cohesion, economic stimulus, and even recovery capacity. Access in the context of SLR provides a complementary metric to risk of displacement for measuring burden. From the most basic level, diminished accessibility is indicative of time costs stemming from longer commute times and potentially greater greenhouse gas emissions from combustion engines. A lack of accessibility altogether to key public accommodations signals opportunity loss.`);
+        $('#help-popup p').html(`This comparison shows that risk of inundation may be considerably underestimating the burden of sea-level rise and when this burden may commence. Additionally, we see that these effects are notably different in some regions than others.<br><br>
+        We analyse the risk of isolation, defined as where residents are unable to access a primary school, fire station, and emergency medical service due to road inundation. These destinations represent key activity areas to which residents need reliable access. Additionally, this measure acts as a proxy for the number of people at risk of unreliable services (electricity, water etc.) given how these horizontal assets are collocated with our roads (that is, if a road is inundated, the other infrastructure is at risk of damage).`);
     
     } else if (help_type == 'graph') {
         if (current_graph == 'delayed_onset') { 
-            $('#help-popup h2').html(`Delayed Onset Help Title`);  
-            $('#help-popup p').html(`Delayed Onset Help Text`);    
+            $('#help-popup h2').html(`Delayed Onset Histogram`);  
+            $('#help-popup p').html(`Isolation is often, but not always, a forewarning of inundation. This figure shows how much earlier residents might be isolated before they are inundated - in some cases people are isolated, and therefore burdened, decades earlier than inundation-based estimates expect. The figure also shows how many residents are isolated and not inundated within the sea-level rise (0.3-3m) scenarios.<br><br>
+            The three climate scenarios (intermediate, high, extreme) are used to estimate the year that the rise will occur and are based on the scenarios used in <a href="https://toolkit.climate.gov/topics/coastal/sea-level-rise" target="_blank">the USA's Fourth National Risk Assessment</a>.`);    
 
         } else if (current_graph == 'affected_population') {
-            $('#help-popup h2').html(`Affected Population Help Title`);  
-            $('#help-popup p').html(`Affected Population Help Text`);    
+            $('#help-popup h2').html(`Affected Population By Sea Level Rise`);  
+            $('#help-popup p').html(`This figure shows the difference between the number of people at risk from isolation vs inundation for the entire US or by State. It shows that the number is significantly higher if we consider risk of isolation.`);    
 
         }
 

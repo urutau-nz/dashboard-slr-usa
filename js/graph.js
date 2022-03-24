@@ -345,7 +345,7 @@ function updateGraph() {
     if (current_graph == 'affected_population') { 
         var legend = [
             ["Isolated" + (is_per_capita ? ' %' : ''), '#1469a9'],  
-            ["Exposed" + (is_per_capita ? ' %' : ''), "#F6AE2D"]
+            ["Inundated" + (is_per_capita ? ' %' : ''), "#F6AE2D"]
         ];
     } else if (current_graph == 'delayed_onset') { 
         var legend = [
