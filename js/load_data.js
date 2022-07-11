@@ -4,20 +4,12 @@
 
 var import_manager = new ImportManager();
 
-import_manager.addImport('isolation_county', 'Isolated County Pops', 'csv', 
-    'https://projects.urbanintelligence.co.nz/slr-usa/data/results/isolation_county.csv',
+import_manager.addImport('dashboard_county', 'Dashboard County Pops', 'csv', 
+    'https://projects.urbanintelligence.co.nz/slr-usa/data/results/dashboard_county.csv',
     (d) => ({type: 'county', geoid: d.geoid_county, rise: +d.rise, state: d.state_name, state_code: d.state_code, pop: +d.U7B001, perc: +d.U7B001_percentage}));
 
-import_manager.addImport('exposure_county', 'Exposed County Pops', 'csv', 
-'https://projects.urbanintelligence.co.nz/slr-usa/data/results/exposure_county.csv',
-(d) => ({type: 'county', geoid: d.geoid_county, rise: +d.rise, state: d.state_name, state_code: d.state_code, pop: +d.U7B001, perc: +d.U7B001_percentage}));
-
-import_manager.addImport('isolation_tract', 'Isolated Tract Pops', 'csv', 
-'https://projects.urbanintelligence.co.nz/slr-usa/data/results/isolation_tract.csv',
-(d) => ({type: 'tract', geoid: d.geoid_tract, rise: +d.rise, state: d.state_name, state_code: d.state_code, pop: +d.U7B001, perc: +d.U7B001_percentage}));
-
-import_manager.addImport('exposure_tract', 'Exposed Tract Pops', 'csv', 
-'https://projects.urbanintelligence.co.nz/slr-usa/data/results/exposure_tract.csv',
+import_manager.addImport('dashboard_tract', 'Dashboard Tract Pops', 'csv', 
+'https://projects.urbanintelligence.co.nz/slr-usa/data/results/dashboard_tract.csv',
 (d) => ({type: 'tract', geoid: d.geoid_tract, rise: +d.rise, state: d.state_name, state_code: d.state_code, pop: +d.U7B001, perc: +d.U7B001_percentage}));
 
 import_manager.addImport('tracts', 'Tract JSON', 'json', 
@@ -30,11 +22,8 @@ import_manager.addImport('states', 'States JSON', 'json',
 'https://projects.urbanintelligence.co.nz/slr-usa/data/results/states.json');
 
 
-import_manager.addImport('exposure_state', 'Exposure State Pops', 'csv', 
-'https://projects.urbanintelligence.co.nz/slr-usa/data/results/exposure_state.csv');
-
-import_manager.addImport('isolation_state', 'Isolation State Pops', 'csv', 
-'https://projects.urbanintelligence.co.nz/slr-usa/data/results/isolation_state.csv');
+import_manager.addImport('dashboard_state', 'Dashboard State Pops', 'csv', 
+'https://projects.urbanintelligence.co.nz/slr-usa/data/results/dashboard_state.csv');
 
 
 import_manager.addImport('delayed_onset_histogram_data', 'Delayed Onset Histogram', 'csv', 
@@ -47,12 +36,9 @@ import_manager.onComplete(importsComplete);
 import_manager.runImports();
 
 
-var isolated_pops = [];
-var isolated_tract_pops = [];
-var isolated_state_pops = [];
-var exposed_pops = [];
-var exposed_tract_pops = [];
-var exposed_state_pops = [];
+var county_pops = [];
+var tract_pops = [];
+var state_pops = [];
 var counties = [];
 var tracts = [];
 var states = [];
@@ -65,12 +51,9 @@ var state_codes = {'All': 'all'};
 
 
 function importsComplete(imports) {
-  isolated_pops = imports['isolation_county'].filter(d => d.rise > 0);
-  exposed_pops = imports['exposure_county'].filter(d => d.rise > 0);
-  isolated_tract_pops = imports['isolation_tract'].filter(d => d.rise > 0);
-  exposed_tract_pops = imports['exposure_tract'].filter(d => d.rise > 0);
-  isolated_state_pops = imports['isolation_state'].filter(d => d.rise > 0);
-  exposed_state_pops = imports['exposure_state'].filter(d => d.rise > 0);
+  county_pops = imports['dashboard_county'].filter(d => d.rise > 0);
+  tract_pops = imports['dashboard_tract'].filter(d => d.rise > 0);
+  state_pops = imports['dashboard_state'].filter(d => d.rise > 0);
 
   counties = imports['counties'];
   tracts = imports['tracts'];
@@ -81,7 +64,7 @@ function importsComplete(imports) {
   delayed_onset_histogram_data = imports['delayed_onset_histogram_data'];
 
   // Generate State Code dict from isolated
-  isolated_state_pops.forEach(d => {
+  state_pops.forEach(d => {
     if (!Object.keys(state_codes).includes(d.state_name)) {
       state_codes[d.state_name] = d.state_code;
     }

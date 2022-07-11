@@ -10,23 +10,112 @@ function updateGraph() {
     $('#dist-graph>div').remove();
 
     if (current_graph == "affected_population") {
+        $('#dist-graph').append('<div id="graph-div"></div>');
         $('#dist-graph').removeClass('wide');
-        var full_width = 500;
+        var full_width = 600;
 
     } else if (current_graph == "delayed_onset") {
+        $('#dist-graph').append('<div id="graph-div" class="wide"></div>');
         $('#dist-graph').addClass('wide');
         var full_width = 800;
     }
 
-    /*
+    
     $("#dist-graph").append(`<div style="background-color: #04497c; position:absolute; width: 200%; height: 43px; top: 0; left: 0;"></div>`)
 
+
+
+    if (current_graph == "affected_population") {
+        // Affected Population Graph
+        datasets['exposed'] = [];
+        datasets['isolated'] = [];
+    
+        for (var i = 0; i < 11; i++ ) {
+            datasets['isolated'].push([i, 0]);
+            datasets['exposed'].push([i, 0]);
+        }
+    
+        if (stateMenu.value == 'All') {
+            // For all USA
+            isolated_state_pops.forEach(x => { datasets['isolated'][x.rise][1] +=  x.U7B001; });
+            exposed_state_pops.forEach(x => { datasets['exposed'][x.rise][1] +=  x.U7B001; });
+    
+        } else {
+            if (capitaMenu.checked) {
+                // Per Capita
+                isolated_state_pops.forEach(x => {
+                    if (x.state_name == stateMenu.value)  datasets['isolated'][x.rise][1] +=  x.U7B001_percentage;
+                });
+                exposed_state_pops.forEach(x => {
+                    if (x.state_name == stateMenu.value)  datasets['exposed'][x.rise][1] +=  x.U7B001_percentage;
+                });
+    
+            } else {
+                // Not Per Capita
+                isolated_pops.forEach(x => {
+                    if (x.state == stateMenu.value) datasets['isolated'][x.rise][1] +=  x.pop;
+                });
+                exposed_pops.forEach(x => {
+                    if (x.state == stateMenu.value)  datasets['exposed'][x.rise][1] +=  x.pop;
+                });
+            }
+        }
+
+        // Remove 0
+        datasets['exposed'].shift();
+        datasets['isolated'].shift();
+
+
+
+
+        
+
+    } else if (current_graph == "delayed_onset") {
+
+        var graph = new vlGraph('graph-div', delayed_onset_histogram_data, 'x', 'y', { 
+            //sum_matches: true,
+            datasets_column: 'scenario', // Separate Datasets by 'scenario' column
+            filter: function(x) {return state_codes[stateMenu.value] == x.state && x.x != 170} // Filter data by this state
+        });
+        graph.margin({top: 60, right: 100, bottom: 50, left: 40});
+        graph.title('Delayed Onset Histogram');
+        graph.title_adjust(20);
+        graph.watermark('USA');
+        graph.x_axis_label("Time Lag between Onset of Inundation and Isolation (Years)");
+        graph.x_axis_adjust(5);
+        graph.x_suffix(" years");
+        graph.x_ticks(20);
+        graph.y_axis_label("Number of People");
+        graph.y_axis_adjust(5);
+        graph.y_ticks(12);
+        graph.min_y(0);
+        graph.gridlines(false);
+        graph.colors(["#1469a9", "#F6AE2D", "#e74242"]);
+        graph.legend_labels(["Intermediate", "High", "Extreme"])
+        graph.addInternalLegend()
+        graph.barGraph();
+
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+   /*
     var graph = new vlGraph('dist-graph', delayed_onset_histogram_data, 'x', 'y', { 
         //sum_matches: true,
         datasets_column: 'scenario', // Separate Datasets by 'scenario' column
         filter: function(x) {return state_codes[stateMenu.value] == x.state && x.x != 170} // Filter data by this state
     });
-    graph.margin({top: 60, right: 20, bottom: 50, left: 95});
+    graph.margin({top: 60, right: 20, bottom: 50, left: 40});
     graph.title('Delayed Onset Histogram');
     graph.title_adjust(20);
     graph.watermark('USA');
@@ -35,7 +124,7 @@ function updateGraph() {
     graph.x_suffix(" years");
     graph.x_ticks(20);
     graph.y_axis_label("Number of People");
-    graph.y_axis_adjust(20);
+    graph.y_axis_adjust(5);
     graph.y_ticks(12);
     graph.min_y(0);
     graph.gridlines(false);
@@ -54,10 +143,86 @@ function updateGraph() {
     second_graph.margin({top: 60, right: 20, bottom: 50, left: 700});
     second_graph.max_y(graph.config.max_y);
     second_graph.min_y(graph.config.min_y);
-    graph.barGraph();
+    second_graph.barGraph();
 
-    */
     
+    $("#dist-graph").append(`<div style="background-color: #04497c; position:absolute; width: 200%; height: 43px; top: 0; left: 0;"></div>`)
+    
+
+    // Get Data
+    var datasets = [];
+    var y_column = [];
+    var my_filter = function (x) {return true;};
+    if (stateMenu.value == 'All') {
+        // For all USA
+        datasets = [isolated_state_pops, exposed_state_pops];
+        y_column = 'U7B001';
+
+    } else {
+        if (capitaMenu.checked) {
+            // Per Capita
+            datasets = [isolated_state_pops, exposed_state_pops];
+            y_column = 'U7B001_percentage';
+            my_filter = function (x) {return (x.state_name == stateMenu.value)}
+
+        } else {
+            // Not Per Capita
+            datasets = [isolated_pops, exposed_pops];
+            y_column = 'pop';
+            my_filter = function (x) {return (x.state == stateMenu.value)}
+        }
+    }
+
+    var is_per_capita = capitaMenu.checked && stateMenu.value != 'All';
+    var title = `Affected Population ${(is_per_capita ? 'Per Capita ' : '')}By Sea Level Rise`;
+    var watermark = (stateMenu.value == "All" ? 'USA' : stateMenu.value);
+    var y_axis_label = "Affected Population"  + (is_per_capita ? ' Per Capita' : '');
+    var legend = [
+        "Isolated" + (is_per_capita ? ' %' : ''),  
+        "Inundated" + (is_per_capita ? ' %' : '')
+    ];
+    var y_decimal_figures = (is_per_capita ? 2 : 0);
+    var y_suffix = (is_per_capita ? '%' : '');
+
+
+    var graph = new vlGraph('dist-graph', datasets[0], 'rise', y_column, { 
+        sum_matches: true,
+        filter: my_filter // Filter data by this state
+    });
+    graph.addData(datasets[1], 'rise', y_column, { 
+        sum_matches: true,
+        filter: my_filter // Filter data by this state
+    });
+    graph.margin({top: 60, right: 20, bottom: 50, left: 95});
+    graph.title(title);
+    graph.title_adjust(20);
+    graph.watermark(watermark);
+    graph.x_axis_label("Increase in Sea Level (ft)");
+    graph.x_axis_adjust(5);
+    graph.x_suffix("ft");
+    graph.y_suffix(y_suffix);
+    graph.x_ticks(12);
+    graph.y_axis_label(y_axis_label);
+    graph.y_axis_adjust(20);
+    graph.y_ticks(10);
+    graph.min_y(0);
+    graph.min_x('strict');
+    graph.max_x('strict');
+    graph.gridlines(false);
+    graph.dots(false);
+    graph.line_width(2.5);
+    graph.colors(["#1469a9", "#F6AE2D", "#e74242"]);
+    graph.legend_labels(legend)
+    graph.legend_shape('bar');
+    graph.y_decimal_figures(y_decimal_figures);
+    graph.addInternalLegend()
+    graph.lineGraph();
+
+
+
+
+    
+    /*
 
     var margin = {top: 30, right: 20, bottom: 80, left: 95},
         width = full_width - margin.left - margin.right,
@@ -105,8 +270,10 @@ function updateGraph() {
     .style("text-anchor", "middle")
     .text(title)
     .attr('class','graph-title');
-    
 
+
+
+    
 
     // Faded State
     var back = (stateMenu.value == "All" ? 'USA' : stateMenu.value);
@@ -443,7 +610,7 @@ function updateGraph() {
     
 
     
-
+    */
         
     // Expand/Contract Button & Menu button & Help button
     $("#dist-graph").append('<div id="graph_expansion_button" onclick="graph_expand()">⤡</div>');

@@ -435,7 +435,7 @@ div.intro_tour .introjs-button {
 #dist-graph {
   border-radius: 0.2rem;
   padding: 0;
-  width: 500px;
+  width: 600px;
   height: 365px;
   transition: height 0.2s ease-in-out, width 0.2s ease-in-out, padding-top 0.2s ease-in-out;
   position: relative;
@@ -455,6 +455,14 @@ div.intro_tour .introjs-button {
   font-weight: 600;
   color: rgb(0,0,0);
   opacity: 0.8;
+}
+
+#graph-div {
+  height: 100%;
+  width: 600px;
+}
+#graph-div.wide {
+  width: 800px;
 }
 
 
