@@ -6,27 +6,56 @@ var graphHoverData = {};
 function updateGraph() {
     // set the dimensions and margins of the graph
 
+    //Quit if not expanded
+    if (!graph_expanded) return 0;
+
     $('#graph-loading-logos-table').remove();
     $('#dist-graph>div').remove();
 
     if (current_graph == "affected_population") {
         $('#dist-graph').append('<div id="graph-div"></div>');
         $('#dist-graph').removeClass('wide');
-        var full_width = 600;
 
     } else if (current_graph == "delayed_onset") {
-        $('#dist-graph').append('<div id="graph-div" class="wide"></div>');
+        $('#dist-graph').append('<div id="graph-div"></div><div id="extra-graph-div"></div>');
         $('#dist-graph').addClass('wide');
-        var full_width = 800;
     }
 
     
-    $("#dist-graph").append(`<div style="background-color: #04497c; position:absolute; width: 200%; height: 43px; top: 0; left: 0;"></div>`)
+
+
+
+    
+    // Title
+    if (current_graph == "affected_population") {
+        var title = `Affected Population ${(is_per_capita ? 'Per Capita ' : '')}By Sea Level Rise`;
+
+    } else if (current_graph == "delayed_onset") {
+        var title = `Delayed Onset Histogram`;
+    }
+    $("#dist-graph").append(`<div id="graph-title-div">${title}</div>`);
+
+
+
+
+
+    // Faded State
+    var back = (stateMenu.value == "All" ? 'USA' : stateMenu.value);
+
+    var is_per_capita = capitaMenu.checked && stateMenu.value != 'All';
+
+
+
+
 
 
 
     if (current_graph == "affected_population") {
         // Affected Population Graph
+
+        
+        var datasets = [];
+
         datasets['exposed'] = [];
         datasets['isolated'] = [];
     
@@ -34,31 +63,25 @@ function updateGraph() {
             datasets['isolated'].push([i, 0]);
             datasets['exposed'].push([i, 0]);
         }
+
     
         if (stateMenu.value == 'All') {
-            // For all USA
-            isolated_state_pops.forEach(x => { datasets['isolated'][x.rise][1] +=  x.U7B001; });
-            exposed_state_pops.forEach(x => { datasets['exposed'][x.rise][1] +=  x.U7B001; });
-    
+            state_pops.forEach(function (x) {
+                datasets['isolated'][x.rise][1] +=  x.isolated;
+                datasets['exposed'][x.rise][1] +=  x.inundated;
+            });
         } else {
-            if (capitaMenu.checked) {
-                // Per Capita
-                isolated_state_pops.forEach(x => {
-                    if (x.state_name == stateMenu.value)  datasets['isolated'][x.rise][1] +=  x.U7B001_percentage;
-                });
-                exposed_state_pops.forEach(x => {
-                    if (x.state_name == stateMenu.value)  datasets['exposed'][x.rise][1] +=  x.U7B001_percentage;
-                });
-    
-            } else {
-                // Not Per Capita
-                isolated_pops.forEach(x => {
-                    if (x.state == stateMenu.value) datasets['isolated'][x.rise][1] +=  x.pop;
-                });
-                exposed_pops.forEach(x => {
-                    if (x.state == stateMenu.value)  datasets['exposed'][x.rise][1] +=  x.pop;
-                });
-            }
+            state_pops.forEach(function (x) {
+                if (stateMenu.value == x.state_name) {
+                    if (capitaMenu.checked) {
+                        datasets['isolated'][x.rise][1] =  x.isolated_percentage;
+                        datasets['exposed'][x.rise][1] =  x.inundated_percentage;
+                    } else {
+                        datasets['isolated'][x.rise][1] =  x.isolated;
+                        datasets['exposed'][x.rise][1] =  x.inundated;
+                    }
+                }
+            });
         }
 
         // Remove 0
@@ -67,20 +90,65 @@ function updateGraph() {
 
 
 
+        // Create csv
+        var final_data = [];
+        for (var key in datasets) {
+            for (var item of datasets[key]) {
+                final_data.push({
+                    x: item[0],
+                    y: item[1],
+                    dataset: key
+                });
+            }
+        }
 
-        
+
+
+        var graph = new vlGraph('graph-div', final_data, 'x', 'y', { 
+            //sum_matches: true,
+            datasets_column: 'dataset', // Separate Datasets by 'scenario' column
+            // filter: function(x) {return state_codes[stateMenu.value] == x.state && x.x != 170} // Filter data by this state
+        });
+        graph.margin({top: 60, right: 20, bottom: 50, left: 40});
+        graph.title_adjust(20);
+        graph.watermark(back);
+        graph.x_axis_label("Increase in Sea Level (ft)");
+        graph.x_axis_adjust(5);
+        graph.x_suffix("ft");
+        graph.x_ticks(10);
+        graph.y_axis_label("Affected Population"  + (is_per_capita ? ' Per Capita' : ''));
+        graph.y_axis_adjust(5);
+        if (is_per_capita) graph.x_suffix("%");
+        graph.y_ticks(8);
+        graph.min_y(0);
+        graph.gridlines("horizontal");
+        graph.colors(["#0676CB", "#D12E49"]);
+        graph.legend_labels(["Isolated" + (is_per_capita ? ' %' : ''), "Inundated" + (is_per_capita ? ' %' : '')])
+        graph.addInternalLegend()
+        graph.lineGraph();
+
 
     } else if (current_graph == "delayed_onset") {
+
+        // Determine max y
+        var max_y_val = 0;
+        for (var item of delayed_onset_histogram_data) {
+            if (state_codes[stateMenu.value] == item.state && item.y > max_y_val) {
+                max_y_val = item.y;
+            }
+        }
+        max_y_val *= 1.15;
+
+        console.log(delayed_onset_histogram_data);
 
         var graph = new vlGraph('graph-div', delayed_onset_histogram_data, 'x', 'y', { 
             //sum_matches: true,
             datasets_column: 'scenario', // Separate Datasets by 'scenario' column
-            filter: function(x) {return state_codes[stateMenu.value] == x.state && x.x != 170} // Filter data by this state
+            filter: function(x) {return state_codes[stateMenu.value] == x.state && `${x.x}` != ''} // Filter data by this state
         });
-        graph.margin({top: 60, right: 100, bottom: 50, left: 40});
-        graph.title('Delayed Onset Histogram');
+        graph.margin({top: 60, right: 5, bottom: 50, left: 45});
         graph.title_adjust(20);
-        graph.watermark('USA');
+        graph.watermark(back);
         graph.x_axis_label("Time Lag between Onset of Inundation and Isolation (Years)");
         graph.x_axis_adjust(5);
         graph.x_suffix(" years");
@@ -89,13 +157,73 @@ function updateGraph() {
         graph.y_axis_adjust(5);
         graph.y_ticks(12);
         graph.min_y(0);
+        graph.max_y(max_y_val);
         graph.gridlines(false);
-        graph.colors(["#1469a9", "#F6AE2D", "#e74242"]);
+        graph.colors(["#FFA938", "#D12E49", "#06CB7C"]);
         graph.legend_labels(["Intermediate", "High", "Extreme"])
+        /*graph.extra_render_function(
+            function (info) {
+                
+                var bar_width = info.x.bandwidth() / Object.keys(info.datasets).length;
+                for (var bar_index in extra_bars) {
+                    var bar = extra_bars[bar_index];
+
+                    var color = {
+                        "intermediate": "#a1df86",
+                        "high": "#6aa1b0"
+                    }[bar.scenario];
+
+                    var bar_offset = bar_width * bar_index;
+    
+                    info.svg.append('rect')
+                    .attr("transform", "translate(" + (bar_offset) + ",0)") //dataset_offsets[dataset_id]- bar_width/2
+                    .attr("x", 500)
+                    .attr("y", info.y(bar.y))
+                    .attr("width", bar_width)
+                    .attr("height", info.height - info.y(bar.y))
+                    .attr("rx", 2)
+                    .attr("ry", 2)
+                    .style("fill", color)
+                    .attr("stroke-width", 0);
+                }
+            }
+        );*/
         graph.addInternalLegend()
         graph.barGraph();
 
 
+        var new_graph = new vlGraph('extra-graph-div', delayed_onset_histogram_data, 'x', 'y', { 
+            //sum_matches: true,
+            datasets_column: 'scenario', // Separate Datasets by 'scenario' column
+            filter: function(x) {return state_codes[stateMenu.value] == x.state && `${x.x}` == ''} // Filter data by this state
+        });
+        new_graph.margin({top: 60, right: 40, bottom: 50, left: 5});
+        new_graph.title_adjust(20);
+        new_graph.x_axis_label("Isolated but");
+        new_graph.x_axis_adjust(5);
+        new_graph.x_suffix(" years");
+        new_graph.x_ticks(1);
+        new_graph.y_ticks(12);
+        new_graph.min_y(0);
+        new_graph.max_y(max_y_val);
+        new_graph.axes("x");
+        new_graph.extra_render_function(
+            function (info) {
+                $(`#extra-graph-div .vl-x-axis .tick text`).remove();
+                $(`#extra-graph-div .vl-graph-axis-label`).attr("transform", "translate(18, 278)");
+                info.svg.append("text")
+                .attr("transform",
+                    "translate(18, 293)")
+                .style("text-anchor", "middle")
+                .style("font-size", (info.config.font_size) + 'px')
+                .text("not Inundated") 
+                .attr('class','vl-graph-axis-label');
+            }
+        );
+        new_graph.gridlines(false);
+        new_graph.colors(["#FFA938", "#D12E49", "#06CB7C"]);
+        new_graph.legend_labels(["Intermediate", "High", "Extreme"])
+        new_graph.barGraph();
 
 
     }
@@ -642,10 +770,13 @@ function graph_expand() {
     graph_expanded = !graph_expanded;
     if (graph_expanded) {
         $('#graph_menu_button').removeClass('hide');
+        $('#graph-title-div').css('color', '#FFF');
         graph.style.height = "";
         graph.style.width = "";
+        setTimeout(updateGraph, 400);
     } else {
         $('#graph_menu_button').addClass('hide');
+        $('#graph-title-div').css('color', '#0000');
         graph.style.height = "43px";
         graph.style.width = "43px";
     }

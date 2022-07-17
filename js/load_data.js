@@ -6,11 +6,13 @@ var import_manager = new ImportManager();
 
 import_manager.addImport('dashboard_county', 'Dashboard County Pops', 'csv', 
     'https://projects.urbanintelligence.co.nz/slr-usa/data/results/dashboard_county.csv',
-    (d) => ({type: 'county', geoid: d.geoid_county, rise: +d.rise, state: d.state_name, state_code: d.state_code, pop: +d.U7B001, perc: +d.U7B001_percentage}));
+    (d) => ({...d, geoid_county: `${d.geoid_county}`, inundated: +d.inundated, inundated_percentage: +d.inundated_percentage,
+    isolated: +d.isolated, isolated_percentage: +d.isolated_percentage}));
 
 import_manager.addImport('dashboard_tract', 'Dashboard Tract Pops', 'csv', 
 'https://projects.urbanintelligence.co.nz/slr-usa/data/results/dashboard_tract.csv',
-(d) => ({type: 'tract', geoid: d.geoid_tract, rise: +d.rise, state: d.state_name, state_code: d.state_code, pop: +d.U7B001, perc: +d.U7B001_percentage}));
+(d) => ({...d, geoid_tract: `${d.geoid_tract}`, inundated: +d.inundated, inundated_percentage: +d.inundated_percentage,
+isolated: +d.isolated, isolated_percentage: +d.isolated_percentage}));
 
 import_manager.addImport('tracts', 'Tract JSON', 'json', 
 'https://projects.urbanintelligence.co.nz/slr-usa/data/results/tract.json');
@@ -277,16 +279,32 @@ var distances_by_geoid = {};
 function updateFilteredDistances(sli, pop) {
     let year = '2020';
     let dfilter = function (d) {
-      return (stateMenu.value == 'All' || d.state == stateMenu.value);
+      return (stateMenu.value == 'All' || d.state_name == stateMenu.value) && d.rise == sli;
     }
-    if (pop == "isolated") {
-      filtered_distances = isolated_pops.filter(dfilter);
-      filtered_distances = filtered_distances.concat(isolated_tract_pops.filter(dfilter));
-    } else {
-      filtered_distances = exposed_pops.filter(dfilter);
-      filtered_distances = filtered_distances.concat(exposed_tract_pops.filter(dfilter));
+    var filtered_counties = county_pops.filter(dfilter);
+    var filtered_tracts = tract_pops.filter(dfilter);
+
+    distances_by_geoid = {};
+    for (var item of filtered_tracts) {
+      distances_by_geoid[item.geoid_tract] = {...item, type: 'tract'};
+      if (popMenu.value == 'isolated') { 
+        distances_by_geoid[item.geoid_tract].perc = item.isolated_percentage;
+        distances_by_geoid[item.geoid_tract].pop = item.isolated;
+      } else {
+        distances_by_geoid[item.geoid_tract].perc = item.inundated_percentage;
+        distances_by_geoid[item.geoid_tract].pop = item.inundated;
+      }
     }
-    distances_by_geoid = Object.assign({}, ...filtered_distances.filter(d => d.rise == sli).map((d) => ({[d.geoid]: d})));
+    for (var item of filtered_counties) {
+      distances_by_geoid[item.geoid_county] = {...item, type: 'county'};
+      if (popMenu.value == 'isolated') { 
+        distances_by_geoid[item.geoid_county].perc = item.isolated_percentage;
+        distances_by_geoid[item.geoid_county].pop = item.isolated;
+      } else {
+        distances_by_geoid[item.geoid_county].perc = item.inundated_percentage;
+        distances_by_geoid[item.geoid_county].pop = item.inundated;
+      }
+    }
 
     if (DEBUGGING) {
         console.log("Updated Filtered Distances");
