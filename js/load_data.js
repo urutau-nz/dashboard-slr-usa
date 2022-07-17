@@ -64,6 +64,7 @@ function importsComplete(imports) {
   all_tract_geometries = all_tract_geometries.concat(tracts.objects.tract.geometries);
 
   delayed_onset_histogram_data = imports['delayed_onset_histogram_data'];
+  delayed_onset_histogram_data.forEach(x => { if (x.x == null) { x.x = -1 }})
 
   // Generate State Code dict from isolated
   state_pops.forEach(d => {

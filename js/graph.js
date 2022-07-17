@@ -141,10 +141,11 @@ function updateGraph() {
 
         console.log(delayed_onset_histogram_data);
 
+
         var graph = new vlGraph('graph-div', delayed_onset_histogram_data, 'x', 'y', { 
             //sum_matches: true,
             datasets_column: 'scenario', // Separate Datasets by 'scenario' column
-            filter: function(x) {return state_codes[stateMenu.value] == x.state && `${x.x}` != ''} // Filter data by this state
+            filter: function(x) {return state_codes[stateMenu.value] == x.state && x.x != -1} // Filter data by this state
         });
         graph.margin({top: 60, right: 5, bottom: 50, left: 45});
         graph.title_adjust(20);
@@ -192,10 +193,13 @@ function updateGraph() {
         graph.barGraph();
 
 
-        var new_graph = new vlGraph('extra-graph-div', delayed_onset_histogram_data, 'x', 'y', { 
+        var extra_data = delayed_onset_histogram_data.filter(x => x.x == -1);
+
+        console.log("EXTRA", extra_data);
+        var new_graph = new vlGraph('extra-graph-div', extra_data, 'x', 'y', { 
             //sum_matches: true,
             datasets_column: 'scenario', // Separate Datasets by 'scenario' column
-            filter: function(x) {return state_codes[stateMenu.value] == x.state && `${x.x}` == ''} // Filter data by this state
+            filter: function(x) {return state_codes[stateMenu.value] == x.state} // Filter data by this state
         });
         new_graph.margin({top: 60, right: 40, bottom: 50, left: 5});
         new_graph.title_adjust(20);
@@ -207,6 +211,7 @@ function updateGraph() {
         new_graph.min_y(0);
         new_graph.max_y(max_y_val);
         new_graph.axes("x");
+        new_graph.x_value_in_hover(false);
         new_graph.extra_render_function(
             function (info) {
                 $(`#extra-graph-div .vl-x-axis .tick text`).remove();
