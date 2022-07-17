@@ -443,9 +443,12 @@ div.intro_tour .introjs-button {
   background-color: white;
   border: 3px solid #04497c;
   color: #04497c;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
 #dist-graph.wide {
-  width: 800px;
+  width: 740px;
 }
 
 
@@ -460,9 +463,11 @@ div.intro_tour .introjs-button {
 #graph-div {
   height: 100%;
   width: 600px;
+  min-width: 600px;
 }
-#graph-div.wide {
-  width: 800px;
+#graph-div.wide>div {
+  width: 740px;
+  min-width: 740px;
 }
 
 
@@ -683,8 +688,8 @@ input:checked + .slider:before {
   cursor: pointer;
   border-radius: 4px;
 }
-#graph_menu_button.hide {
-  display:none;
+.hide {
+  display:none !important;
 }
 #graph_menu_button:hover {
   background-color: #00274480;
@@ -761,4 +766,30 @@ input:checked + .slider:before {
   width: 10px;
   height: 10px;
   transform: rotate(45deg);
+}
+
+
+.ratio-disabled {
+  opacity:0.2;
+  pointer-events: none;
+}
+
+#graph-title-div {
+  background-color: #04497c; 
+  position:absolute; 
+  width: 100%; 
+  height: 43px; 
+  top: 0; 
+  left: 0;
+  display: flex;
+  font: 17px 'Rubik';
+  font-weight: 500;
+  color: #FFF;    
+  justify-content: center;
+  align-items: center;
+}
+
+#extra-graph-div {
+  width: 140px;
+  min-width: 140px;
 }

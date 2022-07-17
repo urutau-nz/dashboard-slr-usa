@@ -16,10 +16,10 @@ amenity_legend.onAdd = function (map) {
     
 
 
-    demographic_drop = '<td style="min-width: 100px;"><h3 style="display:inline">Population:</h3></td>' + 
+    demographic_drop = '<td style="min-width: 100px;"><h3 style="display:inline">Risk of:</h3></td>' + 
                     '<td style="min-width: 150px;"><div class="location_drop_div" style="float: right"><select class="location_drop" id="popDropDown">';
-    demographic_drop += '<option value="exposed">Inundated</option>';
-    demographic_drop += '<option value="isolated" selected>Isolated</option>';
+    demographic_drop += '<option value="exposed">Inundation</option>';
+    demographic_drop += '<option value="isolated" selected>Isolation</option>';
     demographic_drop += '</select></div></td>';
     
     state_drop = '<td><h3 style="display:inline">State:</h3></td>' + 
@@ -31,12 +31,19 @@ amenity_legend.onAdd = function (map) {
     state_drop += '</select></div></td>';
 
     var capita_switch = `<td><h3 style="display:inline">Per Capita:</h3></td>
-    <td style="text-align:right"><label class="switch">
+    <td style="text-align:right"><label class="switch" id="capitaSwitchParent">
         <input id="capitaSwitch" type="checkbox">
         <span class="slider round"></span>
     </label></td>`;
+    var ratio_switch = `<td><h3 style="display:inline">Ratio:</h3></td>
+    <td style="text-align:right"><label class="switch">
+        <input id="ratioSwitch" type="checkbox">
+        <span class="slider round"></span>
+    </label></td>`;
 
-    div.innerHTML = title + '<table style="width:100%;border-spacing: 0 8px;"><tr>' + location_drop + '</tr><tr>' + demographic_drop + '</tr><tr>' + state_drop + '</tr><tr>' + capita_switch + '</tr></table>';
+    div.innerHTML = title + '<table style="width:100%;border-spacing: 0 8px;"><tr class="location-drop">' + location_drop + 
+    '</tr><tr class="demographic-drop">' + demographic_drop + '</tr><tr class="state-drop">' + state_drop + 
+    '</tr><tr class="capita-switch">' + capita_switch + '</tr><tr class="ratio-switch">' + ratio_switch + '</tr></table>';
     
     return div;
 };
@@ -67,6 +74,14 @@ var stateMenu = document.getElementById("stateDropDown");
 stateMenu.onchange = function() {
     var newView = state_centers[stateMenu.value];
     map.setView(newView.center, newView.zoom);
+
+    // Hide ratio if not all
+    if (stateMenu.value == 'All') {
+        $('tr.ratio-switch').removeClass('ratio-disabled');
+    } else {
+        $('tr.ratio-switch').addClass('ratio-disabled');
+    }
+
     updateFilteredCounties(stateMenu.value);
     updateMap();
 }
@@ -76,11 +91,27 @@ stateMenu.onchange = function() {
 */
 var capitaMenu = document.getElementById("capitaSwitch");
 capitaMenu.onchange = function() {
-    console.log(capitaMenu.checked);
     updateMap();
 }
 
 
+/* Updates the map on changing the state
+*/
+var ratioMenu = document.getElementById("ratioSwitch");
+ratioMenu.onchange = function() {
+    if (ratioMenu.checked) {
+        // Hide other form items
+        $('tr.demographic-drop').addClass('ratio-disabled');
+        $('tr.state-drop').addClass('ratio-disabled');
+        $('tr.capita-switch').addClass('ratio-disabled');
+    } else {
+        // Reveal other form items
+        $('tr.demographic-drop').removeClass('ratio-disabled');
+        $('tr.state-drop').removeClass('ratio-disabled');
+        $('tr.capita-switch').removeClass('ratio-disabled');
+    }
+    updateMap();
+}
 
 
 
@@ -110,7 +141,18 @@ function setScaleLegend(div = null) {
     if (!div) div = document.getElementById("scale_legend");
 
     var labels = [];
-    (capitaMenu.checked ? cmap_percs : (stateMenu.value == 'All' ? cmap : cmap_tracts)).forEach( function(v) {
+
+    var selected_cmap = [];
+    if (ratioMenu.checked) {
+        selected_cmap = cmap_ratios;
+    } else if (capitaMenu.checked) {
+        selected_cmap = cmap_percs;
+    } else if (stateMenu.value == 'All') {
+        selected_cmap = cmap;
+    } else {
+        selected_cmap = cmap_tracts;
+    }
+    selected_cmap.forEach( function(v) {
       labels.push('<tr>' + 
           '<td class="legend cblock" id="leg' + v.idx + '" style="color:' + v.text + '; background:' + v.fill + '"></td>' +
           '<td class="ltext">' + v.label + '</td></tr>');
@@ -119,11 +161,18 @@ function setScaleLegend(div = null) {
 
     table = '<table id="legend_table">' + labels.join('') + '</table>';
     
-    var title = popMenu.value;
-    title = title[0].toUpperCase() + title.slice(1).toLowerCase();
-    if (title == 'Exposed') title = 'Inundated';
-    var bracket = `(${(capitaMenu.checked ? 'Per Capita' : (stateMenu.value == 'All' ? 'Counties' : 'Tracts'))})`;
-    div.innerHTML = `<h3 style="font-size:0.9rem;margin:0.2rem;">${title} Population ${bracket}:</h3>` + table;
+    if (ratioMenu.checked) {
+        var title = "Isolation:Inundation";
+    } else {
+        var title = popMenu.value;
+        title = title[0].toUpperCase() + title.slice(1).toLowerCase();
+        if (title == 'Exposed') title = 'Inundated';
+        var bracket = `(${(capitaMenu.checked ? 'Per Capita' : (stateMenu.value == 'All' ? 'Counties' : 'Tracts'))})`;
+        title = `${title} Population ${bracket}:`;
+    }
+    title = `<h3 style="font-size:0.9rem;margin:0.2rem;">${title}</h3>`;
+
+    div.innerHTML = title + table;
 }
 
 /* FOR MANUALLY SETTING STATE ZOOMS & CENTERS */ 

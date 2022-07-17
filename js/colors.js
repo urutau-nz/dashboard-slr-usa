@@ -30,6 +30,11 @@ var cmap_percs = [{"idx" : 0, "label" : "50% +", "lower" : 50, "upper" : 101, "t
             {"idx" : 4, "label" : "< 5%", "lower" : 0.01, "upper" : 5, "text" : "black", "fill" : '#79D151'},
             {"idx" : 5, "label" : "0", "lower" : 0, "upper" : 0.01, "text" : "black", "fill" : '#c5e3b8'}];
 
+var cmap_ratios = [{"idx" : 0, "label" : "4+", "lower" : 4, "upper" : 101, "text" : "black", "fill" : '#440154'},
+            {"idx" : 1, "label" : "3 - 4", "lower" : 3, "upper" : 50, "text" : "black", "fill" : '#404387'},
+            {"idx" : 2, "label" : "2 - 3", "lower" : 2, "upper" : 20, "text" : "black", "fill" : '#29788E'},
+            {"idx" : 3, "label" : "1.5 - 2", "lower" : 1.5, "upper" : 10, "text" : "black", "fill" : '#22A784'},
+            {"idx" : 4, "label" : "1 - 1.5", "lower" : 1, "upper" : 5, "text" : "black", "fill" : '#79D151'}];
 
 
 var cdest = {'1': "#40F", '2': "#FCF000", '3': "#FF5050"}
@@ -84,3 +89,13 @@ function getPercColor(d) {
   return '#000';
 }
 
+
+function getRatioColor(d) {
+  if (d == 'inf') return "#440154";
+  for (var vi in cmap_ratios) {
+    if (+d >= cmap_ratios[vi].lower) 
+      return cmap_ratios[vi].fill;
+  }
+
+  return '#79D151';
+}

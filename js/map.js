@@ -30,6 +30,8 @@ function highlightFeature(e) {
     var layer = e.target;
     let data = distances_by_geoid[layer.feature.properties.id];
     let data_exists = typeof data != "undefined";
+
+    console.log(data, layer.feature.properties.id, data_exists);
     
     var props = layer.feature.properties;
 
@@ -65,7 +67,13 @@ function highlightFeature(e) {
     // Update Mouse Info
     var mouse_info = document.getElementById("mouseInfo");
     mouse_info.style.visibility = "visible";
-    if (capitaMenu.checked) {
+    if (ratioMenu.checked) {
+        // Ratio
+        console.log(distances_by_geoid, layer.feature.properties.id, data);
+        var value = (data.ratio == 'inf' ? 'Infinite' : Math.round((+data.ratio + Number.EPSILON) * 100) / 100);
+        mouse_info.innerHTML = header + title + " Ratio: "; //+ layer.feature.properties.id + " ";
+        mouse_info.innerHTML += value;
+    } else if (capitaMenu.checked) {
         // Per Capita
         mouse_info.innerHTML = header + title + " Percentage: "; //+ layer.feature.properties.id + " ";
         mouse_info.innerHTML += distance + '%';
@@ -137,8 +145,11 @@ Params:
 function style(feature) {
     let col;
     let data = distances_by_geoid[feature.properties.id];
-    if (filtered_distances.length == 0) { 
+    if (Object.keys(distances_by_geoid).length == 0) { 
         col="#000";
+    } else if (ratioMenu.checked) {
+        col = getRatioColor(data.ratio);
+
     } else if (typeof data != "undefined") {
         if (capitaMenu.checked) {
             col = getPercColor(data.perc);
@@ -161,8 +172,8 @@ function style(feature) {
 function tractStyle(feature) {
     let col;
     let data = distances_by_geoid[feature.properties.id];
-    if (filtered_distances.length == 0) { 
-        col="#000000";
+    if (Object.keys(distances_by_geoid).length == 0) { 
+        col="#000";
     } else if (typeof data != "undefined") {
         if (capitaMenu.checked) {
             col = getPercColor(data.perc);
@@ -170,7 +181,7 @@ function tractStyle(feature) {
             col = getTractColor(data.pop);
         }
     } else {
-        col = getColor(0);
+        col = getTractColor(0);
     }
     return { fillColor: col, weight: 1, color: '#FFF0', opacity: 0, fillOpacity: 0.6};
 }
@@ -199,7 +210,15 @@ function updateCounties() {
 
     if (stateMenu.value == 'All') {
         geojsonCountyLayer = L.geoJSON(topojson.feature(filtered_counties, filtered_counties.objects.county), 
-        {style : style, onEachFeature : onEachFeature}
+        {style : style, onEachFeature : onEachFeature, filter: function (d) {
+            var props = d.properties;
+            if (ratioMenu.checked) {
+                // Filter out shapes with undefinied ratios
+                let data = distances_by_geoid[props.id];
+                return typeof data != "undefined";
+            }
+            return true;
+        }}
         ).addTo(map);
     } else  {
         geojsonTractLayer = L.geoJSON(topojson.feature(filtered_tracts, filtered_tracts.objects.tract), 
